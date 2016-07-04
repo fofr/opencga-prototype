@@ -1,14 +1,16 @@
-{% block top_of_page %}{% endblock %}
 <!DOCTYPE html>
-<!--[if lt IE 9]><html class="lte-ie8" lang="{{ html_lang|default('en') }}"><![endif]-->
-<!--[if gt IE 8]><!--><html lang="{{ html_lang|default('en') }}"><!--<![endif]-->
+<html lang="{{ html_lang|default('en') }}">
   <head>
     <meta charset="utf-8" />
     <title>{% block page_title %}Title{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ asset_path }}stylesheets/application.css" media="screen" rel="stylesheet" type="text/css" />
     {% block head %}{% endblock %}
   </head>
   <body class="{% block body_classes %}{% endblock %}">
     {% block content %}{% endblock %}
+    <script src="{{ asset_path }}javascripts/jquery-1.11.3.js"></script>
+    <script src="{{ asset_path }}javascripts/bootstrap.min.js"></script>
+    {% block js %}{% endblock %}
   </body>
 </html>

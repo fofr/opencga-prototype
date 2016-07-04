@@ -7,7 +7,7 @@ module.exports = function(grunt){
         options: {
           style: "expanded",
           sourcemap: true,
-          includePaths: [],
+          includePaths: ['node_modules/bootstrap-sass/assets/stylesheets'],
           outputStyle: 'expanded'
         },
         files: [{
@@ -31,6 +31,13 @@ module.exports = function(grunt){
         }],
         ignoreInDest: "**/stylesheets/**",
         updateAndDelete: true
+      },
+      bootstrap: {
+        files: [{
+          cwd: 'node_modules/bootstrap-sass/assets/javascripts/',
+          src: 'bootstrap.min.js',
+          dest: 'public/javascripts'
+        }]
       }
     },
 
