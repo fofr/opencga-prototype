@@ -38,6 +38,14 @@ module.exports = function(grunt){
           src: 'bootstrap.min.js',
           dest: 'public/javascripts'
         }]
+      },
+      glyphicons: {
+        files: [{
+          expand: true,
+          cwd: 'node_modules/bootstrap-sass/assets/fonts/',
+          src: '**/*',
+          dest: 'public/fonts'
+        }]
       }
     },
 
