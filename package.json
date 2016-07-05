@@ -25,6 +25,7 @@
     "grunt-sync": "^0.5.1",
     "hogan.js": "3.0.2",
     "minimist": "0.0.8",
-    "readdir": "0.0.6"
+    "readdir": "0.0.6",
+    "request": "^2.72.0"
   }
 }
