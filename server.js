@@ -8,26 +8,12 @@ var path = require('path'),
     config = require(__dirname + '/app/config.js'),
     port = (process.env.PORT || config.port),
     packageJson = require(__dirname + '/package.json'),
-    OpenCGA = require(__dirname + '/lib/opencga_client.js'),
     env      = process.env.NODE_ENV || 'development';
     env      = env.toLowerCase();
 
 // Application settings
 app.set('view engine', 'html');
 app.set('views', [__dirname + '/app/views', __dirname + '/lib/']);
-
-// Create OpenCGA config
-var config = new OpenCGA.OpenCGAClientConfig('squalet.hpc.cam.ac.uk:8080/opencga', 'v1', 'opencga_sId', 'opencga_userId');
-var openCGAClient = new OpenCGA.OpenCGAClient(config);
-var password = process.env.PASSWORD
-
-openCGAClient.users().login('user1', {password: password}).then(function(response) {
-  console.log('here');
-  console.log(response);
-}).catch(function(response) {
-  console.log('caught');
-  console.log(response.error);
-});
 
 nunjucks.setup({
   autoescape: true,
