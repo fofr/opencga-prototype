@@ -2,5 +2,13 @@
 {% block page_title %}Title{% endblock %}
 
 {% block content %}
-{{ user.name }}
+  {{ user.name }}
+
+  <ul>
+    {% for project in projects %}
+      <li>
+        <a href="/project/{{project.id}}">{{project.name}}</a>
+      </li>
+    {% endfor %}
+  </ul>
 {% endblock %}

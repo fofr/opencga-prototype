@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block page_title %}{{ project.name }} - Projects{% endblock %}
+
+{% block content %}
+  <h1>{{ project.name }}</h1>
+  <p class="lead">{{ project.description }}</p>
+
+  <ul>
+    {% for study in studies %}
+      <li>
+        <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
