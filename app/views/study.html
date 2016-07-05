@@ -20,17 +20,19 @@
 
   <table class="table table-bordered">
     <thead>
-      <tr>
+      <tr class="table-header">
         <th>Name</th>
       </tr>
     </thead>
     <tbody>
       {% for file in files %}
+        {% if file.path %}
         <tr>
           <td>
             {{ file.path }}
           </td>
         </tr>
+        {% endif %}
       {% endfor %}
     </tbody>
   </table>
