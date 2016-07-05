@@ -2,11 +2,20 @@
 {% block page_title %}{{ project.name }} - Projects{% endblock %}
 
 {% block content %}
+  <ol class="breadcrumb">
+    <li>
+      <a href="/">{{ user.name }}</a>
+    </li>
+    <li class="active">
+      {{ project.name }}
+    </li>
+  </ol>
+
   <h1>{{ project.name }}</h1>
   <p class="lead">{{ project.description }}</p>
 
   <ul>
-    {% for study in studies %}
+    {% for study in project.studies %}
       <li>
         <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
       </li>

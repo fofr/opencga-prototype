@@ -4,6 +4,9 @@
 {% block content %}
   <ol class="breadcrumb">
     <li>
+      <a href="/">{{ user.name }}</a>
+    </li>
+    <li>
       <a href="/project/{{ project.id }}">{{ project.name }}</a>
     </li>
     <li class="active">
@@ -13,4 +16,22 @@
 
   <h1>{{ study.name }}</h1>
   <p class="lead">{{ study.description }}</p>
+
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for file in files %}
+        <tr>
+          <td>
+            {{ file.path }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
