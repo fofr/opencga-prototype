@@ -9,7 +9,7 @@ router.get('/', function (req, res) {
     var user = response.result[0];
     var projects = response.result[0].projects;
 
-    res.render('index', { 'user' : user, 'projects': projects });
+    render(res, 'index', { 'user' : user, 'projects': projects });
   });
 });
 
@@ -21,7 +21,7 @@ router.get('/project/:projectId', function (req, res) {
     var project = responses[0].result[0],
         user = responses[1].result[0];
 
-    res.render('project', {
+    render(res, 'project', {
       'project' : project,
       'user' : user
     });
@@ -46,7 +46,7 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
         jobs = responses[5].result,
         summary = responses[6].result[0];
 
-    res.render('study', {
+    render(res, 'study', {
       'project' : project,
       'study' : study,
       'user' : user,
@@ -58,5 +58,39 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
   });
 });
 
-// add your routes here
+
+function render(res, template, params) {
+  var params = params || {},
+      objects = [];
+
+  Object.keys(params).forEach(function(key) {
+    var val = params[key],
+        o;
+
+    if (Array.isArray(val)) {
+      val = {array: val};
+    }
+
+    try {
+      o = {
+        key: key,
+        json: JSON.stringify(val, function(key, value) {
+          if (typeof value === "string") {
+            return value.replace(/"/g, '\\\"');
+          }
+          return value;
+        })
+      };
+
+      objects.push(o);
+    } catch (ex) {
+      console.log('Could not parse JSON for ' + key);
+      console.log(ex);
+    }
+  });
+
+  params.json_objects = objects;
+  res.render(template, params);
+}
+
 module.exports = router;

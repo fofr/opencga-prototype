@@ -35,5 +35,9 @@
     <script src="{{ asset_path }}javascripts/jquery-1.11.3.js"></script>
     <script src="{{ asset_path }}javascripts/bootstrap.min.js"></script>
     {% block js %}{% endblock %}
+
+    {% for object in json_objects %}
+      <script>console.log('{{ object.key }}', JSON.parse('{{ object.json|safe }}'));</script>
+    {% endfor %}
   </body>
 </html>
