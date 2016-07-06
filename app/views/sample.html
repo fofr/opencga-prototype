@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block page_title %}{{ sample.name }} - Sample{% endblock %}
+
+{% block content %}
+  <ol class="breadcrumb">
+    <li>
+      <a href="/">{{ user.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+    </li>
+    <li class="active">
+      {{ sample.name }}
+    </li>
+  </ol>
+
+  <h1>
+    <span class="text-muted format">Sample</span><br />
+    {{ sample.name }}
+  </h1>
+  <p class="lead">Source file: {{ sample.source }}</p>
+
+  <div class="row">
+    <div class="col-md-2">
+      <div class="panel panel-default">
+        <div class="panel-heading">Samples</div>
+        <ul class="list-group">
+          {% for s in samples %}
+          <li class="list-group-item">
+            <a href="/project/{{ project.id }}/study/{{ study.id }}/sample/{{ s.id }}">{{ s.name }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-10">
+      <dl class="dl-horizontal">
+        {% for annotation in sample.annotationSets[0].annotations %}
+          <dt>{{ annotation.name }}</dt>
+          <dd>{{ annotation.value }}</dd>
+        {% endfor %}
+      </dl>
+    </div>
+  </div>
+
+
+{% endblock %}

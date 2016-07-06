@@ -58,6 +58,29 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
   });
 });
 
+router.get('/project/:projectId/study/:studyId/sample/:sampleId', function (req, res) {
+  var studyPromise = openCGAclient.studies().info(req.params.studyId),
+      projectPromise = openCGAclient.projects().info(req.params.projectId),
+      userPromise = openCGAclient.users().info(),
+      samplesPromise = openCGAclient.studies().samples(req.params.studyId),
+      samplePromise = openCGAclient.samples().info(req.params.sampleId);
+
+  Promise.all([studyPromise, projectPromise, userPromise, samplesPromise, samplePromise]).then(function(responses) {
+    var study = responses[0].result[0],
+        project = responses[1].result[0],
+        user = responses[2].result[0],
+        samples = responses[3].result,
+        sample = responses[4].result[0];
+
+    render(res, 'sample', {
+      'project' : project,
+      'study' : study,
+      'user' : user,
+      'sample': sample,
+      'samples': samples
+    });
+  });
+});
 
 function render(res, template, params) {
   var params = params || {},

@@ -76,7 +76,7 @@
             {% for sample in samples %}
               <tr>
                 <td>
-                  {{ sample.name }}
+                  <a href="/project/{{ project.id }}/study/{{ study.id }}/sample/{{ sample.id }}">{{ sample.name }}</a>
                 </td>
                 <td>
                   {{ sample.source }}
