@@ -34,6 +34,7 @@ module.exports = function(grunt){
       },
       bootstrap: {
         files: [{
+          expand: true,
           cwd: 'node_modules/bootstrap-sass/assets/javascripts/',
           src: 'bootstrap.min.js',
           dest: 'public/javascripts'

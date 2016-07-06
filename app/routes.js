@@ -33,18 +33,27 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
   projectPromise = openCGAclient.projects().info(req.params.projectId);
   userPromise = openCGAclient.users().info();
   filesPromise = openCGAclient.studies().files(req.params.studyId);
+  samplesPromise = openCGAclient.studies().samples(req.params.studyId);
+  jobsPromise = openCGAclient.studies().jobs(req.params.studyId);
+  summaryPromise = openCGAclient.studies().summary(req.params.studyId);
 
-  Promise.all([studyPromise, projectPromise, userPromise, filesPromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, userPromise, filesPromise, samplesPromise, jobsPromise, summaryPromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0];
-        files = responses[3].result;
+        user = responses[2].result[0],
+        files = responses[3].result,
+        samples = responses[4].result,
+        jobs = responses[5].result,
+        summary = responses[6].result[0];
 
     res.render('study', {
       'project' : project,
       'study' : study,
       'user' : user,
-      'files': files
+      'files': files,
+      'samples': samples,
+      'jobs': jobs,
+      'summary': summary
     });
   });
 });
