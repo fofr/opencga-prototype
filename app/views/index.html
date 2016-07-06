@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block page_title %}Title{% endblock %}
+{% block page_title %}{{ user.name }}{% endblock %}
 
 {% block content %}
   <h1>{{ user.name }}</h1>

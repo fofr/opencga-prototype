@@ -11,8 +11,13 @@
     </li>
   </ol>
 
-  <h1>{{ project.name }}</h1>
-  <p class="lead">{{ project.description }}</p>
+  <h1>
+    <span class="text-muted format">Project</span><br />
+    {{ project.name }}
+  </h1>
+  <p class="lead">
+    {{ project.description }}
+  </p>
 
   <ul>
     {% for study in project.studies %}
