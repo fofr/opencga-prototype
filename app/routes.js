@@ -56,6 +56,19 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
         jobs = responses[5].result,
         summary = responses[6].result[0];
 
+    samples.forEach(function(sample) {
+      if (typeof sample.source === "string") {
+        var file = files.find(function(f) {
+          return f.name === sample.source;
+        });
+
+        if (file) {
+          sample.fileId = file.id;
+        }
+
+      }
+    });
+
     render(res, 'study', {
       'project' : project,
       'study' : study,
