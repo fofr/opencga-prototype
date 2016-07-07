@@ -91,7 +91,7 @@ function render(res, template, params) {
         o;
 
     if (Array.isArray(val)) {
-      val = {array: val};
+      val = {array: val.slice(0,5), total: val.length};
     }
 
     try {
