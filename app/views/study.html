@@ -29,7 +29,19 @@
     </ul>
     <div class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="summary">
-        <h2 class="add-top-margin">Summary</h2>
+        <h2 class="add-top-margin">Sample annotation summary</h2>
+
+        {% for type, values in annotationSummary %}
+          <h3>{{ type }}</h3>
+
+          {% if values|objectLength < 30 %}
+            {% for value, count in values %}
+              {{ value }}: {{ count }}<br />
+            {% endfor %}
+          {% else %}
+            {{ values|objectLength }} unique values
+          {% endif %}
+        {% endfor %}
       </div>
       <div role="tabpanel" class="tab-pane" id="files">
         <h2 class="add-top-margin">Files</h2>

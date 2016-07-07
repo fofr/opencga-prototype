@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var openCGAclient = require('../lib/opencga_client.js');
 var User = require('./presenters/user');
+var sampleAnnotationSummary = require('./processing/sample_summary');
 
 router.get('/', function (req, res) {
   promise = openCGAclient.users().info();
@@ -76,7 +77,8 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
       'files': files,
       'samples': samples,
       'jobs': jobs,
-      'summary': summary
+      'summary': summary,
+      'annotationSummary': sampleAnnotationSummary(samples)
     });
   });
 });

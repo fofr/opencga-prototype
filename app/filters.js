@@ -12,6 +12,10 @@ module.exports = function(env) {
     return pluralize(string, number);
   }
 
+  filters.objectLength = function(obj) {
+    return Object.keys(obj).length;
+  }
+
   return filters;
 
 };
