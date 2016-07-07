@@ -83,6 +83,45 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
   });
 });
 
+router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
+  var studyPromise = openCGAclient.studies().info(req.params.studyId),
+      projectPromise = openCGAclient.projects().info(req.params.projectId),
+      userPromise = openCGAclient.users().info(),
+      samplesPromise, search_params;
+
+  // TODO: Make this more reliable
+  search_params = Object.assign({studyId: req.params.studyId}, req.query);
+  console.log(search_params);
+  samplesPromise = openCGAclient.samples().search(search_params);
+
+  Promise.all([studyPromise, projectPromise, userPromise, samplesPromise]).then(function(responses) {
+    var study = responses[0].result[0],
+        project = responses[1].result[0],
+        user = responses[2].result[0],
+        samples = responses[3].result,
+        filters = sampleAnnotationSummary(samples);
+
+    render(res, 'samples', {
+      'project' : project,
+      'study' : study,
+      'user' : user,
+      'samples': samples,
+      'annotationSummary': filters,
+      'queryString': '?' + serialize(req.query)
+    });
+  });
+
+  function serialize(obj) {
+    var str = [];
+    for (var p in obj) {
+      if (obj.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      }
+    }
+    return str.join("&");
+  }
+});
+
 router.get('/project/:projectId/study/:studyId/sample/:sampleId', function (req, res) {
   var studyPromise = openCGAclient.studies().info(req.params.studyId),
       projectPromise = openCGAclient.projects().info(req.params.projectId),

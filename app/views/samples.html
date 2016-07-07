@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block page_title %}{{ study.name }} samples{% endblock %}
+
+{% block content %}
+  <ol class="breadcrumb">
+    <li>
+      <a href="/">Projects</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+    </li>
+    <li class="active">
+      Samples
+    </li>
+  </ol>
+
+  <h1 class="add-bottom-margin">
+    {{ samples|length }} {{'sample'|pluralize(samples|length)}}
+  </h1>
+
+  <div class="row">
+    <div class="col-md-3">
+      {% for type, values in annotationSummary %}
+        <div class="panel panel-default" data-module="toggle">
+          <div class="panel-heading js-toggle" role="button">
+            <strong>{{ type }}</strong><br />
+            {{ values|objectLength }} {{ 'value'|pluralize(values|objectLength) }}
+          </div>
+          <ul class="list-group js-toggle-target">
+            {% if values|objectLength < 50 %}
+              {% for value, count in values %}
+                <li class="list-group-item">
+                  <a href="{{ queryString }}&amp;annotation.{{ type }}={{ value }}">{{ value }}</a>
+                  <span class="pull-right">{{ count }}</span>
+                </li>
+              {% endfor %}
+            {% else %}
+              <li class="list-group-item">
+                {{ values|objectLength }} unique values
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="col-md-9">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="table-header">
+            <th>Name</th>
+            <th>Date</th>
+            <th style="width: 30%">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sample in samples %}
+            <tr>
+              <td>
+                <a href="/project/{{ project.id }}/study/{{ study.id }}/sample/{{ sample.id }}">{{ sample.name }}</a>
+              </td>
+              <td>
+                {{ sample.status.date|date }}
+              </td>
+              <td>
+                {{ sample.description }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
