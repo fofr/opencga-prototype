@@ -19,11 +19,21 @@ router.get('/project/:projectId', function (req, res) {
 
   Promise.all([projectPromise, userPromise]).then(function(responses) {
     var project = responses[0].result[0],
-        user = responses[1].result[0];
+        user = responses[1].result[0],
+        studyPromises = [];
 
-    render(res, 'project', {
-      'project' : project,
-      'user' : user
+    project.studies.forEach(function(study) {
+      studyPromises.push(openCGAclient.studies().summary(study.id));
+    });
+
+    Promise.all(studyPromises).then(function(responses) {
+      render(res, 'project', {
+        'project' : project,
+        'user' : user,
+        'studies': responses.map(function(response) {
+          return response.result[0];
+        })
+      });
     });
   });
 });
@@ -78,6 +88,27 @@ router.get('/project/:projectId/study/:studyId/sample/:sampleId', function (req,
       'user' : user,
       'sample': sample,
       'samples': samples
+    });
+  });
+});
+
+router.get('/project/:projectId/study/:studyId/file/:fileId', function (req, res) {
+  var studyPromise = openCGAclient.studies().info(req.params.studyId),
+      projectPromise = openCGAclient.projects().info(req.params.projectId),
+      userPromise = openCGAclient.users().info(),
+      filePromise = openCGAclient.files().info(req.params.fileId);
+
+  Promise.all([studyPromise, projectPromise, userPromise, filePromise]).then(function(responses) {
+    var study = responses[0].result[0],
+        project = responses[1].result[0],
+        user = responses[2].result[0],
+        file = responses[3].result[0];
+
+    render(res, 'file', {
+      'project' : project,
+      'study' : study,
+      'user' : user,
+      'file': file
     });
   });
 });

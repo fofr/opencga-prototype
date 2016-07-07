@@ -2,13 +2,38 @@
 {% block page_title %}{{ user.name }}{% endblock %}
 
 {% block content %}
-  <h1>{{ user.name }}</h1>
+  <ol class="breadcrumb">
+    <li class="active">
+      Projects
+    </li>
+  </ol>
 
-  <ul>
-    {% for project in projects %}
-      <li>
-        <a href="/project/{{project.id}}">{{project.name}}</a>
-      </li>
-    {% endfor %}
-  </ul>
+  <h1>Projects</h1>
+
+  <table class="table table-bordered add-top-margin">
+    <thead>
+      <tr class="table-header">
+        <th>Project</th>
+        <th>Studies</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for project in projects %}
+        <tr>
+          <td>
+            <a href="/project/{{ project.id }}/">{{ project.name }}</a>
+          </td>
+          <td>
+            <ul class="list-unstyled">
+              {% for study in project.studies %}
+                <li>
+                  <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

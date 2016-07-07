@@ -4,7 +4,7 @@
 {% block content %}
   <ol class="breadcrumb">
     <li>
-      <a href="/">{{ user.name }}</a>
+      <a href="/">Projects</a>
     </li>
     <li class="active">
       {{ project.name }}
@@ -19,11 +19,40 @@
     {{ project.description }}
   </p>
 
-  <ul>
-    {% for study in project.studies %}
-      <li>
-        <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
-      </li>
-    {% endfor %}
-  </ul>
+  <table class="table table-bordered">
+    <thead>
+      <tr class="table-header">
+        <th>Study</th>
+        <th>Date</th>
+        <th>Files</th>
+        <th>Samples</th>
+        <th>Jobs</th>
+        <th>Individuals</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for study in project.studies %}
+        <tr>
+          <td>
+            <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+          </td>
+          <td>
+              {{ studies[loop.index - 1].status.date|date }}
+          </td>
+          <td>
+            {{ studies[loop.index - 1].files }} {{ "file"|pluralize(studies[loop.index - 1].files) }}
+          </td>
+          <td>
+            {{ studies[loop.index - 1].samples }} {{ "sample"|pluralize(studies[loop.index - 1].samples) }}
+          </td>
+          <td>
+            {{ studies[loop.index - 1].jobs }} {{ "job"|pluralize(studies[loop.index - 1].jobs) }}
+          </td>
+          <td>
+            {{ studies[loop.index - 1].individuals }} {{ "individual"|pluralize(studies[loop.index - 1].individuals) }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

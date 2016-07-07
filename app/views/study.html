@@ -4,7 +4,7 @@
 {% block content %}
   <ol class="breadcrumb">
     <li>
-      <a href="/">{{ user.name }}</a>
+      <a href="/">Projects</a>
     </li>
     <li>
       <a href="/project/{{ project.id }}">{{ project.name }}</a>
@@ -20,7 +20,7 @@
   </h1>
   <p class="lead">{{ study.description }}</p>
 
-  <div>
+  <div data-module="tab-switcher" data-default-tab="summary">
     <ul class="nav nav-tabs" role="tablist">
       <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
       <li role="presentation"><a href="#files" aria-controls="files" role="tab" data-toggle="tab">Files <span class="badge badge-default">{{summary.files}}</span></a></li>
@@ -30,8 +30,6 @@
     <div class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="summary">
         <h2 class="add-top-margin">Summary</h2>
-
-
       </div>
       <div role="tabpanel" class="tab-pane" id="files">
         <h2 class="add-top-margin">Files</h2>
@@ -48,7 +46,7 @@
               {% if file.path %}
               <tr>
                 <td>
-                  {{ file.path }}
+                  <a href="/project/{{ project.id }}/study/{{ study.id }}/file/{{ file.id }}" class="word-break">{{ file.path }}</a>
                 </td>
                 <td>
                   {{ file.bioformat }}
