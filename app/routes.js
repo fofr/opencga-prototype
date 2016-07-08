@@ -111,6 +111,13 @@ router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
       }
     }
 
+    samples.forEach(function(sample) {
+      sample.annotations = {};
+      for (let annotation of sample.annotationSets[0].annotations) {
+        sample.annotations[annotation.name] = annotation.value;
+      }
+    });
+
     render(res, 'samples', {
       'project' : project,
       'study' : study,

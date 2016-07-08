@@ -63,11 +63,27 @@
       {% endfor %}
     </div>
     <div class="col-md-9">
-      <table class="table table-bordered">
+      <table class="table table-bordered" data-module="filterable-table">
         <thead>
           <tr class="table-header">
             <th>Name</th>
             <th>Date</th>
+            <th>Family</th>
+            <th>Mother</th>
+            <th>Father</th>
+          </tr>
+          <tr class="if-no-js-hide table-header-secondary">
+            <td colspan="100">
+              <form>
+                <label for="gene-filter" class="rm">Filter samples</label>
+                <div class="input-group">
+                  <input id="gene-filter" type="text" class="form-control normal js-filter-table-input" placeholder="Filter samples">
+                  <span class="input-group-addon js-filter-table-count" data-singular="sample" data-plural="samples">
+                      {{ samples|length }} {{"sample"|pluralize(samples|length)}}
+                  </span>
+                </div>
+              </form>
+            </td>
           </tr>
         </thead>
         <tbody>
@@ -78,6 +94,15 @@
               </td>
               <td>
                 {{ sample.status.date|date }}
+              </td>
+              <td>
+                {{ sample.annotations.family }}
+              </td>
+              <td>
+                {{ sample.annotations.motherId }}
+              </td>
+              <td>
+                {{ sample.annotations.fatherId }}
               </td>
             </tr>
           {% endfor %}
