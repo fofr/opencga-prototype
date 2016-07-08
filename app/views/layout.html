@@ -20,12 +20,15 @@
           <a class="navbar-brand" href="/">OpenCGA prototype</a>
         </div>
         <div class="collapse navbar-collapse" id="navbar">
-          <ul class="nav navbar-nav">
+          <!-- <ul class="nav navbar-nav">
             <li><a href="/">Nav item</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/">Log out</a></li>
-          </ul>
+          </ul> -->
+          {% if user %}
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/">{{ user.name }}</a></li>
+              <li><a href="/logout">Log out</a></li>
+            </ul>
+          {% endif %}
         </div>
       </div>
     </div>

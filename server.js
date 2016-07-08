@@ -1,5 +1,7 @@
 var path = require('path'),
     express = require('express'),
+    session = require('express-session'),
+    SQLiteStore = require('connect-sqlite3')(session),
     browserSync = require('browser-sync'),
     nunjucks = require('express-nunjucks'),
     routes = require(__dirname + '/app/routes.js'),
@@ -14,6 +16,12 @@ var path = require('path'),
 // Application settings
 app.set('view engine', 'html');
 app.set('views', [__dirname + '/app/views', __dirname + '/lib/']);
+app.use(session({
+  store: new SQLiteStore,
+  secret: '73874hdfhjh2387876',
+  saveUninitialized: false,
+  cookie: {}
+}));
 
 nunjucks.setup({
   autoescape: true,

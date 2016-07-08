@@ -1,36 +1,64 @@
 var express = require('express');
 var router = express.Router();
 var openCGAclient = require('../lib/opencga_client.js');
-var User = require('./presenters/user');
 var sampleAnnotationSummary = require('./processing/sample_summary');
 
-router.get('/', function (req, res) {
-  promise = openCGAclient.users().info();
-  promise.then(function(response) {
-    var user = response.result[0];
-    var projects = response.result[0].projects;
+// Authentication and Authorization Middleware
+var auth = function(req, res, next) {
+  if (req.session && req.session.sid && req.session.userId) {
+    userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
+    userPromise.then(function(response) {
+      res.locals.user = response.result[0];
+      return next();
+    });
+  } else {
+    res.redirect('/login');
+  }
+};
 
-    render(res, 'index', { 'user' : user, 'projects': projects });
-  });
+router.get('/login', function (req, res) {
+  render(res, 'login');
 });
 
-router.get('/project/:projectId', function (req, res) {
-  projectPromise = openCGAclient.projects().info(req.params.projectId);
-  userPromise = openCGAclient.users().info();
+router.post('/login', function (req, res) {
+  if (!req.body.username || !req.body.password) {
+    res.send('login failed');
+  } else {
+    promise = openCGAclient.users().login(req.body.username, {password: req.body.password});
+    promise.then(function(response) {
+      var item = response.response[0].result[0];
+      req.session.sid = item.sessionId;
+      req.session.userId = item.userId;
+      res.redirect('/');
+    }).catch(function(response) {
+      console.log('Error caught', response, response.error);
+    });
+  }
+});
 
-  Promise.all([projectPromise, userPromise]).then(function(responses) {
-    var project = responses[0].result[0],
-        user = responses[1].result[0],
+router.get('/logout', function (req, res) {
+  req.session.destroy();
+  res.redirect('/login');
+});
+
+router.get('/', auth, function (req, res) {
+  render(res, 'index', { 'user' : res.locals.user, 'projects': res.locals.user.projects });
+});
+
+router.get('/project/:projectId', auth, function (req, res) {
+  projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid});
+  projectPromise.then(function(response) {
+    var project = response.result[0],
         studyPromises = [];
 
     project.studies.forEach(function(study) {
-      studyPromises.push(openCGAclient.studies().summary(study.id));
+      studyPromises.push(openCGAclient.studies().summary(study.id, {sid: req.session.sid}));
     });
 
     Promise.all(studyPromises).then(function(responses) {
       render(res, 'project', {
         'project' : project,
-        'user' : user,
+        'user' : res.locals.user,
         'studies': responses.map(function(response) {
           return response.result[0];
         })
@@ -39,23 +67,21 @@ router.get('/project/:projectId', function (req, res) {
   });
 });
 
-router.get('/project/:projectId/study/:studyId', function (req, res) {
-  studyPromise = openCGAclient.studies().info(req.params.studyId);
-  projectPromise = openCGAclient.projects().info(req.params.projectId);
-  userPromise = openCGAclient.users().info();
-  filesPromise = openCGAclient.studies().files(req.params.studyId);
-  samplesPromise = openCGAclient.studies().samples(req.params.studyId);
-  jobsPromise = openCGAclient.studies().jobs(req.params.studyId);
-  summaryPromise = openCGAclient.studies().summary(req.params.studyId);
+router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
+  studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid});
+  projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid});
+  filesPromise = openCGAclient.studies().files(req.params.studyId, {sid: req.session.sid});
+  samplesPromise = openCGAclient.studies().samples(req.params.studyId, {sid: req.session.sid});
+  jobsPromise = openCGAclient.studies().jobs(req.params.studyId, {sid: req.session.sid});
+  summaryPromise = openCGAclient.studies().summary(req.params.studyId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, userPromise, filesPromise, samplesPromise, jobsPromise, summaryPromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, filesPromise, samplesPromise, jobsPromise, summaryPromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        files = responses[3].result,
-        samples = responses[4].result,
-        jobs = responses[5].result,
-        summary = responses[6].result[0];
+        files = responses[2].result,
+        samples = responses[3].result,
+        jobs = responses[4].result,
+        summary = responses[5].result[0];
 
     samples.forEach(function(sample) {
       if (typeof sample.source === "string") {
@@ -73,7 +99,7 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
     render(res, 'study', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'files': files,
       'samples': samples,
       'jobs': jobs,
@@ -82,21 +108,21 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
   });
 });
 
-router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
-  var studyPromise = openCGAclient.studies().info(req.params.studyId),
-      projectPromise = openCGAclient.projects().info(req.params.projectId),
-      userPromise = openCGAclient.users().info(),
+router.get('/project/:projectId/study/:studyId/samples', auth, function (req, res) {
+  var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
+      projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
       samplesPromise, search_params;
 
   // TODO: Make this more reliable
-  search_params = Object.assign({studyId: req.params.studyId}, req.query);
+  search_params = Object.assign({
+    studyId: req.params.studyId,
+    sid: req.session.sid}, req.query);
   samplesPromise = openCGAclient.samples().search(search_params);
 
-  Promise.all([studyPromise, projectPromise, userPromise, samplesPromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, samplesPromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        samples = responses[3].result,
+        samples = responses[2].result,
         filters = sampleAnnotationSummary(samples, req.query),
         activeFilters = {};
 
@@ -111,10 +137,17 @@ router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
       }
     }
 
+    samples.forEach(function(sample) {
+      sample.annotations = {};
+      for (let annotation of sample.annotationSets[0].annotations) {
+        sample.annotations[annotation.name] = annotation.value;
+      }
+    });
+
     render(res, 'samples', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'samples': samples,
       'filters': filters,
       'activeFilters': activeFilters
@@ -132,46 +165,42 @@ router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
   }
 });
 
-router.get('/project/:projectId/study/:studyId/sample/:sampleId', function (req, res) {
-  var studyPromise = openCGAclient.studies().info(req.params.studyId),
-      projectPromise = openCGAclient.projects().info(req.params.projectId),
-      userPromise = openCGAclient.users().info(),
-      samplesPromise = openCGAclient.studies().samples(req.params.studyId),
-      samplePromise = openCGAclient.samples().info(req.params.sampleId);
+router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, function (req, res) {
+  var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
+      projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
+      samplesPromise = openCGAclient.studies().samples(req.params.studyId, {sid: req.session.sid}),
+      samplePromise = openCGAclient.samples().info(req.params.sampleId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, userPromise, samplesPromise, samplePromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, samplesPromise, samplePromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        samples = responses[3].result,
-        sample = responses[4].result[0];
+        samples = responses[2].result,
+        sample = responses[3].result[0];
 
     render(res, 'sample', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'sample': sample,
       'samples': samples
     });
   });
 });
 
-router.get('/project/:projectId/study/:studyId/file/:fileId', function (req, res) {
-  var studyPromise = openCGAclient.studies().info(req.params.studyId),
-      projectPromise = openCGAclient.projects().info(req.params.projectId),
-      userPromise = openCGAclient.users().info(),
-      filePromise = openCGAclient.files().info(req.params.fileId);
+router.get('/project/:projectId/study/:studyId/file/:fileId', auth, function (req, res) {
+  var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
+      projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
+      filePromise = openCGAclient.files().info(req.params.fileId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, userPromise, filePromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, filePromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        file = responses[3].result[0];
+        file = responses[2].result[0];
 
     render(res, 'file', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'file': file
     });
   });
