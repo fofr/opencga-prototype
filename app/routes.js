@@ -7,7 +7,11 @@ var sampleAnnotationSummary = require('./processing/sample_summary');
 // Authentication and Authorization Middleware
 var auth = function(req, res, next) {
   if (req.session && req.session.sid && req.session.userId) {
-    return next();
+    userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
+    userPromise.then(function(response) {
+      res.locals.user = response.result[0];
+      return next();
+    });
   } else {
     res.redirect('/login');
   }
@@ -39,22 +43,13 @@ router.get('/logout', function (req, res) {
 });
 
 router.get('/', auth, function (req, res) {
-  promise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
-  promise.then(function(response) {
-    var user = response.result[0];
-    var projects = response.result[0].projects;
-
-    render(res, 'index', { 'user' : user, 'projects': projects });
-  });
+  render(res, 'index', { 'user' : res.locals.user, 'projects': res.locals.user.projects });
 });
 
 router.get('/project/:projectId', auth, function (req, res) {
   projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid});
-  userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
-
-  Promise.all([projectPromise, userPromise]).then(function(responses) {
-    var project = responses[0].result[0],
-        user = responses[1].result[0],
+  projectPromise.then(function(response) {
+    var project = response.result[0],
         studyPromises = [];
 
     project.studies.forEach(function(study) {
@@ -64,7 +59,7 @@ router.get('/project/:projectId', auth, function (req, res) {
     Promise.all(studyPromises).then(function(responses) {
       render(res, 'project', {
         'project' : project,
-        'user' : user,
+        'user' : res.locals.user,
         'studies': responses.map(function(response) {
           return response.result[0];
         })
@@ -76,20 +71,18 @@ router.get('/project/:projectId', auth, function (req, res) {
 router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
   studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid});
   projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid});
-  userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
   filesPromise = openCGAclient.studies().files(req.params.studyId, {sid: req.session.sid});
   samplesPromise = openCGAclient.studies().samples(req.params.studyId, {sid: req.session.sid});
   jobsPromise = openCGAclient.studies().jobs(req.params.studyId, {sid: req.session.sid});
   summaryPromise = openCGAclient.studies().summary(req.params.studyId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, userPromise, filesPromise, samplesPromise, jobsPromise, summaryPromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, filesPromise, samplesPromise, jobsPromise, summaryPromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        files = responses[3].result,
-        samples = responses[4].result,
-        jobs = responses[5].result,
-        summary = responses[6].result[0];
+        files = responses[2].result,
+        samples = responses[3].result,
+        jobs = responses[4].result,
+        summary = responses[5].result[0];
 
     samples.forEach(function(sample) {
       if (typeof sample.source === "string") {
@@ -107,7 +100,7 @@ router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
     render(res, 'study', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'files': files,
       'samples': samples,
       'jobs': jobs,
@@ -119,7 +112,6 @@ router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
 router.get('/project/:projectId/study/:studyId/samples', auth, function (req, res) {
   var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
       projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
-      userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid}),
       samplesPromise, search_params;
 
   // TODO: Make this more reliable
@@ -128,11 +120,10 @@ router.get('/project/:projectId/study/:studyId/samples', auth, function (req, re
     sid: req.session.sid}, req.query);
   samplesPromise = openCGAclient.samples().search(search_params);
 
-  Promise.all([studyPromise, projectPromise, userPromise, samplesPromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, samplesPromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        samples = responses[3].result,
+        samples = responses[2].result,
         filters = sampleAnnotationSummary(samples, req.query),
         activeFilters = {};
 
@@ -157,7 +148,7 @@ router.get('/project/:projectId/study/:studyId/samples', auth, function (req, re
     render(res, 'samples', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'samples': samples,
       'filters': filters,
       'activeFilters': activeFilters
@@ -178,21 +169,19 @@ router.get('/project/:projectId/study/:studyId/samples', auth, function (req, re
 router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, function (req, res) {
   var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
       projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
-      userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid}),
       samplesPromise = openCGAclient.studies().samples(req.params.studyId, {sid: req.session.sid}),
       samplePromise = openCGAclient.samples().info(req.params.sampleId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, userPromise, samplesPromise, samplePromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, samplesPromise, samplePromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        samples = responses[3].result,
-        sample = responses[4].result[0];
+        samples = responses[2].result,
+        sample = responses[3].result[0];
 
     render(res, 'sample', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'sample': sample,
       'samples': samples
     });
@@ -202,19 +191,17 @@ router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, function
 router.get('/project/:projectId/study/:studyId/file/:fileId', auth, function (req, res) {
   var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
       projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
-      userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid}),
       filePromise = openCGAclient.files().info(req.params.fileId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, userPromise, filePromise]).then(function(responses) {
+  Promise.all([studyPromise, projectPromise, filePromise]).then(function(responses) {
     var study = responses[0].result[0],
         project = responses[1].result[0],
-        user = responses[2].result[0],
-        file = responses[3].result[0];
+        file = responses[2].result[0];
 
     render(res, 'file', {
       'project' : project,
       'study' : study,
-      'user' : user,
+      'user' : res.locals.user,
       'file': file
     });
   });
