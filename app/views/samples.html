@@ -23,7 +23,23 @@
 
   <div class="row">
     <div class="col-md-3">
-      {% for type, values in annotationSummary %}
+      {% if activeFilters|objectLength > 0 %}
+      <div class="panel panel-default">
+        <div class="panel-heading">Active filters</div>
+        <ul class="list-group">
+          {% for activeFilterName, activeFilter in activeFilters %}
+            <li class="list-group-item">
+              <a href="{{ activeFilter.filterQuery }}" class="btn btn-default">
+                <span class="glyphicon glyphicon-remove add-right-margin"></span>
+                {{ activeFilterName }}: {{ activeFilter.value }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% for type, values in filters %}
         <div class="panel panel-default" data-module="toggle">
           <div class="panel-heading js-toggle" role="button">
             <strong>{{ type }}</strong><br />
@@ -31,10 +47,10 @@
           </div>
           <ul class="list-group js-toggle-target">
             {% if values|objectLength < 50 %}
-              {% for value, count in values %}
+              {% for value, details in values %}
                 <li class="list-group-item">
-                  <a href="{{ queryString }}&amp;annotation.{{ type }}={{ value }}">{{ value }}</a>
-                  <span class="pull-right">{{ count }}</span>
+                  <a href="{{ details.filterQuery }}">{{ value }}</a>
+                  <span class="pull-right">{{ details.count }}</span>
                 </li>
               {% endfor %}
             {% else %}
@@ -52,7 +68,6 @@
           <tr class="table-header">
             <th>Name</th>
             <th>Date</th>
-            <th style="width: 30%">Description</th>
           </tr>
         </thead>
         <tbody>
@@ -63,9 +78,6 @@
               </td>
               <td>
                 {{ sample.status.date|date }}
-              </td>
-              <td>
-                {{ sample.description }}
               </td>
             </tr>
           {% endfor %}

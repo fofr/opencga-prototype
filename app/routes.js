@@ -77,8 +77,7 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
       'files': files,
       'samples': samples,
       'jobs': jobs,
-      'summary': summary,
-      'annotationSummary': sampleAnnotationSummary(samples)
+      'summary': summary
     });
   });
 });
@@ -91,7 +90,6 @@ router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
 
   // TODO: Make this more reliable
   search_params = Object.assign({studyId: req.params.studyId}, req.query);
-  console.log(search_params);
   samplesPromise = openCGAclient.samples().search(search_params);
 
   Promise.all([studyPromise, projectPromise, userPromise, samplesPromise]).then(function(responses) {
@@ -99,15 +97,27 @@ router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
         project = responses[1].result[0],
         user = responses[2].result[0],
         samples = responses[3].result,
-        filters = sampleAnnotationSummary(samples);
+        filters = sampleAnnotationSummary(samples, req.query),
+        activeFilters = {};
+
+    for (var queryParam in req.query) {
+      var annotation = queryParam.split('.')[1],
+          filterQueryObject = Object.assign({}, req.query);
+
+      delete filterQueryObject[queryParam];
+      activeFilters[annotation] = {
+        value: req.query[queryParam],
+        filterQuery: '?' + serialize(filterQueryObject)
+      }
+    }
 
     render(res, 'samples', {
       'project' : project,
       'study' : study,
       'user' : user,
       'samples': samples,
-      'annotationSummary': filters,
-      'queryString': '?' + serialize(req.query)
+      'filters': filters,
+      'activeFilters': activeFilters
     });
   });
 
