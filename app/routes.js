@@ -4,6 +4,15 @@ var openCGAclient = require('../lib/opencga_client.js');
 var User = require('./presenters/user');
 var sampleAnnotationSummary = require('./processing/sample_summary');
 
+// Authentication and Authorization Middleware
+var auth = function(req, res, next) {
+  if (req.session && req.session.sid && req.session.userId) {
+    return next();
+  } else {
+    res.redirect('/login');
+  }
+};
+
 router.get('/login', function (req, res) {
   render(res, 'login');
 });
@@ -29,7 +38,7 @@ router.get('/logout', function (req, res) {
   res.redirect('/login');
 });
 
-router.get('/', function (req, res) {
+router.get('/', auth, function (req, res) {
   promise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
   promise.then(function(response) {
     var user = response.result[0];
@@ -39,7 +48,7 @@ router.get('/', function (req, res) {
   });
 });
 
-router.get('/project/:projectId', function (req, res) {
+router.get('/project/:projectId', auth, function (req, res) {
   projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid});
   userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
 
@@ -64,7 +73,7 @@ router.get('/project/:projectId', function (req, res) {
   });
 });
 
-router.get('/project/:projectId/study/:studyId', function (req, res) {
+router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
   studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid});
   projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid});
   userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid});
@@ -107,7 +116,7 @@ router.get('/project/:projectId/study/:studyId', function (req, res) {
   });
 });
 
-router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
+router.get('/project/:projectId/study/:studyId/samples', auth, function (req, res) {
   var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
       projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
       userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid}),
@@ -166,7 +175,7 @@ router.get('/project/:projectId/study/:studyId/samples', function (req, res) {
   }
 });
 
-router.get('/project/:projectId/study/:studyId/sample/:sampleId', function (req, res) {
+router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, function (req, res) {
   var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
       projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
       userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid}),
@@ -190,7 +199,7 @@ router.get('/project/:projectId/study/:studyId/sample/:sampleId', function (req,
   });
 });
 
-router.get('/project/:projectId/study/:studyId/file/:fileId', function (req, res) {
+router.get('/project/:projectId/study/:studyId/file/:fileId', auth, function (req, res) {
   var studyPromise = openCGAclient.studies().info(req.params.studyId, {sid: req.session.sid}),
       projectPromise = openCGAclient.projects().info(req.params.projectId, {sid: req.session.sid}),
       userPromise = openCGAclient.users().info(req.session.userId, {sid: req.session.sid}),
