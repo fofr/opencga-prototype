@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var openCGAclient = require('../lib/opencga_client.js');
-var User = require('./presenters/user');
 var sampleAnnotationSummary = require('./processing/sample_summary');
 
 // Authentication and Authorization Middleware
