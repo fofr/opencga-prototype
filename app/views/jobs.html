@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block page_title %}{{ study.name }} jobs{% endblock %}
+
+{% block content %}
+  <ol class="breadcrumb">
+    <li>
+      <a href="/">Projects</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+    </li>
+    <li class="active">
+      Jobs
+    </li>
+  </ol>
+
+  <h1 class="add-bottom-margin">
+    {{ jobs|length }} {{'job'|pluralize(jobs|length)}}
+  </h1>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr class="table-header">
+        <th>Name</th>
+        <th>Tool</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+        <tr>
+          <td>
+            {{ job.name }}
+          </td>
+          <td>
+            {{ job.toolName }}
+          </td>
+          <td>
+            {{ job.description }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </table>
+{% endblock %}

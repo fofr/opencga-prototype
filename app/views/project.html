@@ -37,16 +37,22 @@
             <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
           </td>
           <td>
-              {{ studies[loop.index - 1].status.date|date }}
+            {{ studies[loop.index - 1].status.date|date }}
           </td>
           <td>
-            {{ studies[loop.index - 1].files }} {{ "file"|pluralize(studies[loop.index - 1].files) }}
+            <a href="/project/{{ project.id }}/study/{{ study.id }}/files">
+              {{ studies[loop.index - 1].files }} {{ "file"|pluralize(studies[loop.index - 1].files) }}
+            </a>
           </td>
           <td>
-            {{ studies[loop.index - 1].samples }} {{ "sample"|pluralize(studies[loop.index - 1].samples) }}
+            <a href="/project/{{ project.id }}/study/{{ study.id }}/samples">
+              {{ studies[loop.index - 1].samples }} {{ "sample"|pluralize(studies[loop.index - 1].samples) }}
+            </a>
           </td>
           <td>
-            {{ studies[loop.index - 1].jobs }} {{ "job"|pluralize(studies[loop.index - 1].jobs) }}
+            <a href="/project/{{ project.id }}/study/{{ study.id }}/jobs">
+              {{ studies[loop.index - 1].jobs }} {{ "job"|pluralize(studies[loop.index - 1].jobs) }}
+            </a>
           </td>
           <td>
             {{ studies[loop.index - 1].individuals }} {{ "individual"|pluralize(studies[loop.index - 1].individuals) }}

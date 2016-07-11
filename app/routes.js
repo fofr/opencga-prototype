@@ -51,6 +51,16 @@ var files = function(req, res, next) {
   });
 };
 
+var jobs = function(req, res, next) {
+  getResource(req, res, next, {
+    param: 'jobs',
+    clientType: 'studies',
+    clientMethod: 'jobs',
+    id: req.params.studyId,
+    returnArray: true
+  });
+};
+
 var samples = function(req, res, next) {
   getResource(req, res, next, {
     param: 'samples',
@@ -136,36 +146,19 @@ router.get('/project/:projectId', auth, project, function (req, res) {
   });
 });
 
-router.get('/project/:projectId/study/:studyId', auth, project, study, files, samples, function (req, res) {
-  jobsPromise = res.locals.client.studies().jobs(req.params.studyId, {sid: req.session.sid});
-  summaryPromise = res.locals.client.studies().summary(req.params.studyId, {sid: req.session.sid});
-
-  Promise.all([jobsPromise, summaryPromise]).then(function(responses) {
-    var jobs = responses[0].result,
-        summary = responses[1].result[0];
-
-    /*res.locals.params.samples.forEach(function(sample) {
-      console.log(sample);
-      if (typeof sample.source === "string") {
-        var file = files.find(function(f) {
-          return f.name === sample.source;
-        });
-
-        if (file) {
-          sample.fileId = file.id;
-        }
-      }
-    });*/
-
-    render(res, 'study', {
-      'jobs': jobs,
-      'summary': summary
-    });
+router.get('/project/:projectId/study/:studyId', auth, project, study, function (req, res) {
+  var promise = res.locals.client.studies().summary(req.params.studyId, {sid: req.session.sid});
+  promise.then(function(response) {
+    render(res, 'study', { 'summary': response.result[0] });
   });
 });
 
 router.get('/project/:projectId/study/:studyId/files', auth, project, study, files, function (req, res) {
   render(res, 'files');
+});
+
+router.get('/project/:projectId/study/:studyId/jobs', auth, project, study, jobs, function (req, res) {
+  render(res, 'jobs');
 });
 
 router.get('/project/:projectId/study/:studyId/samples', auth, project, study, function (req, res) {
@@ -233,12 +226,8 @@ router.get('/project/:projectId/study/:studyId/file/:fileId', auth, project, stu
 });
 
 function render(res, template, params) {
-  var params = params || {},
+  var params = Object.assign(res.locals.params, params),
       objects = [];
-
-  for (key in res.locals.params) {
-    params[key] = res.locals.params[key];
-  }
 
   Object.keys(params).forEach(function(key) {
     var val = params[key],
@@ -261,8 +250,7 @@ function render(res, template, params) {
 
       objects.push(o);
     } catch (ex) {
-      console.log('Could not parse JSON for ' + key);
-      console.log(ex);
+      console.log('Could not parse JSON for ' + key, ex);
     }
   });
 

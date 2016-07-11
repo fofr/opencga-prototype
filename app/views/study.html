@@ -20,100 +20,15 @@
   </h1>
   <p class="lead">{{ study.description }}</p>
 
-  <div data-module="tab-switcher" data-default-tab="summary">
-    <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
-      <li role="presentation"><a href="#files" aria-controls="files" role="tab" data-toggle="tab">Files <span class="badge badge-default">{{summary.files}}</span></a></li>
-      <li role="presentation"><a href="#samples" aria-controls="samples" role="tab" data-toggle="tab">Samples <span class="badge badge-default">{{summary.samples}}</span></a></li>
-      <li role="presentation"><a href="#jobs" aria-controls="jobs" role="tab" data-toggle="tab">Jobs <span class="badge badge-default">{{summary.jobs}}</span></a></li>
-    </ul>
-    <div class="tab-content">
-      <div role="tabpanel" class="tab-pane active" id="summary">
-        
-      </div>
-      <div role="tabpanel" class="tab-pane" id="files">
-        <h2 class="add-top-margin">Files</h2>
-        <table class="table table-bordered">
-          <thead>
-            <tr class="table-header">
-              <th>Name</th>
-              <th>Bioformat</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for file in files %}
-              {% if file.path %}
-              <tr>
-                <td>
-                  <a href="/project/{{ project.id }}/study/{{ study.id }}/file/{{ file.id }}" class="word-break">{{ file.path }}</a>
-                </td>
-                <td>
-                  {{ file.bioformat }}
-                </td>
-                <td>
-                  {{ file.description }}
-                </td>
-              </tr>
-              {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div role="tabpanel" class="tab-pane" id="samples">
-        <h2 class="add-top-margin">Samples</h2>
-        <table class="table table-bordered">
-          <thead>
-            <tr class="table-header">
-              <th>Name</th>
-              <th>Source</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for sample in samples %}
-              <tr>
-                <td>
-                  <a href="/project/{{ project.id }}/study/{{ study.id }}/sample/{{ sample.id }}">{{ sample.name }}</a>
-                </td>
-                <td>
-                  <a href="/project/{{ project.id }}/study/{{ study.id }}/file/{{ sample.fileId }}">{{ sample.source }}</a>
-                </td>
-                <td>
-                  {{ sample.description }}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div role="tabpanel" class="tab-pane" id="jobs">
-        <h2 class="add-top-margin">Jobs</h2>
-        <table class="table table-bordered">
-          <thead>
-            <tr class="table-header">
-              <th>Name</th>
-              <th>Tool</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for job in jobs %}
-              <tr>
-                <td>
-                  {{ job.name }}
-                </td>
-                <td>
-                  {{ job.toolName }}
-                </td>
-                <td>
-                  {{ job.description }}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <ul class="list-group">
+    <li class="list-group-item">
+      <a href="/project/{{ project.id }}/study/{{ study.id }}/samples">{{ summary.samples }} {{'sample'|pluralize(summary.samples)}}</a>
+    </li>
+    <li class="list-group-item">
+      <a href="/project/{{ project.id }}/study/{{ study.id }}/jobs">{{ summary.jobs }} {{'job'|pluralize(summary.jobs)}}</a>
+    </li>
+    <li class="list-group-item">
+      <a href="/project/{{ project.id }}/study/{{ study.id }}/files">{{ summary.files }} {{'file'|pluralize(summary.files)}}</a>
+    </li>
+  </ul>
 {% endblock %}
