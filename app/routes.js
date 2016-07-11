@@ -5,6 +5,8 @@ var sampleAnnotationSummary = require('./processing/sample_summary');
 
 // Authentication and Authorization Middleware
 var auth = function(req, res, next) {
+  res.locals.params = {};
+
   if (req.session && req.session.sid && req.session.userId) {
     var config = new OpenCGA.OpenCGAClientConfig(req.session.server, 'v1', 'opencga_sId', 'opencga_userId');
     var client = new OpenCGA.OpenCGAClient(config);
@@ -13,12 +15,30 @@ var auth = function(req, res, next) {
 
     userPromise = client.users().info(req.session.userId, {sid: req.session.sid});
     userPromise.then(function(response) {
-      res.locals.user = response.result[0];
+      res.locals.params.user = response.result[0];
       return next();
     });
   } else {
     res.redirect('/login');
   }
+};
+
+var project = function(req, res, next) {
+  res.locals.params = res.locals.params || {};
+  promise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid});
+  promise.then(function(response) {
+    res.locals.params.project = response.result[0];
+    return next();
+  });
+};
+
+var study = function(req, res, next) {
+  res.locals.params = res.locals.params || {};
+  promise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid});
+  promise.then(function(response) {
+    res.locals.params.study = response.result[0];
+    return next();
+  });
 };
 
 router.get('/login', function (req, res) {
@@ -62,45 +82,37 @@ router.get('/logout', function (req, res) {
 });
 
 router.get('/', auth, function (req, res) {
-  render(res, 'index', { 'user' : res.locals.user, 'projects': res.locals.user.projects });
+  render(res, 'index');
 });
 
-router.get('/project/:projectId', auth, function (req, res) {
-  projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid});
-  projectPromise.then(function(response) {
-    var project = response.result[0],
-        studyPromises = [];
+router.get('/project/:projectId', auth, project, function (req, res) {
+  var project = res.locals.params.project,
+      studyPromises = [];
 
-    project.studies.forEach(function(study) {
-      studyPromises.push(res.locals.client.studies().summary(study.id, {sid: req.session.sid}));
-    });
+  project.studies.forEach(function(study) {
+    studyPromises.push(res.locals.client.studies().summary(study.id, {sid: req.session.sid}));
+  });
 
-    Promise.all(studyPromises).then(function(responses) {
-      render(res, 'project', {
-        'project' : project,
-        'studies': responses.map(function(response) {
-          return response.result[0];
-        })
-      });
+  Promise.all(studyPromises).then(function(responses) {
+    render(res, 'project', {
+      'studies': responses.map(function(response) {
+        return response.result[0];
+      })
     });
   });
 });
 
-router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
-  studyPromise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid});
-  projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid});
+router.get('/project/:projectId/study/:studyId', auth, project, study, function (req, res) {
   filesPromise = res.locals.client.studies().files(req.params.studyId, {sid: req.session.sid});
   samplesPromise = res.locals.client.studies().samples(req.params.studyId, {sid: req.session.sid});
   jobsPromise = res.locals.client.studies().jobs(req.params.studyId, {sid: req.session.sid});
   summaryPromise = res.locals.client.studies().summary(req.params.studyId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, filesPromise, samplesPromise, jobsPromise, summaryPromise]).then(function(responses) {
-    var study = responses[0].result[0],
-        project = responses[1].result[0],
-        files = responses[2].result,
-        samples = responses[3].result,
-        jobs = responses[4].result,
-        summary = responses[5].result[0];
+  Promise.all([filesPromise, samplesPromise, jobsPromise, summaryPromise]).then(function(responses) {
+    var files = responses[0].result,
+        samples = responses[1].result,
+        jobs = responses[2].result,
+        summary = responses[3].result[0];
 
     samples.forEach(function(sample) {
       if (typeof sample.source === "string") {
@@ -116,8 +128,6 @@ router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
     });
 
     render(res, 'study', {
-      'project' : project,
-      'study' : study,
       'files': files,
       'samples': samples,
       'jobs': jobs,
@@ -126,39 +136,24 @@ router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
   });
 });
 
-router.get('/project/:projectId/study/:studyId/files', auth, function (req, res) {
-  var studyPromise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid}),
-      projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid}),
-      filesPromise = res.locals.client.studies().files(req.params.studyId, {sid: req.session.sid});
-
-  Promise.all([studyPromise, projectPromise, filesPromise]).then(function(responses) {
-    var study = responses[0].result[0],
-        project = responses[1].result[0],
-        files = responses[2].result;
-
-    render(res, 'files', {
-      'project' : project,
-      'study' : study,
-      'files': files
-    });
+router.get('/project/:projectId/study/:studyId/files', auth, project, study, function (req, res) {
+  var promise = res.locals.client.studies().files(req.params.studyId, {sid: req.session.sid});
+  promise.then(function(response) {
+    render(res, 'files', { 'files': response.result});
   });
 });
 
-router.get('/project/:projectId/study/:studyId/samples', auth, function (req, res) {
-  var studyPromise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid}),
-      projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid}),
-      samplesPromise, search_params;
+router.get('/project/:projectId/study/:studyId/samples', auth, project, study, function (req, res) {
+  var promise, search_params;
 
   // TODO: Make this more reliable
   search_params = Object.assign({
     studyId: req.params.studyId,
     sid: req.session.sid}, req.query);
-  samplesPromise = res.locals.client.samples().search(search_params);
+  promise = res.locals.client.samples().search(search_params);
 
-  Promise.all([studyPromise, projectPromise, samplesPromise]).then(function(responses) {
-    var study = responses[0].result[0],
-        project = responses[1].result[0],
-        samples = responses[2].result,
+  promise.then(function(response) {
+    var samples = response.result,
         filters = sampleAnnotationSummary(samples, req.query),
         activeFilters = {};
 
@@ -181,8 +176,6 @@ router.get('/project/:projectId/study/:studyId/samples', auth, function (req, re
     });
 
     render(res, 'samples', {
-      'project' : project,
-      'study' : study,
       'samples': samples,
       'filters': filters,
       'activeFilters': activeFilters
@@ -200,42 +193,25 @@ router.get('/project/:projectId/study/:studyId/samples', auth, function (req, re
   }
 });
 
-router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, function (req, res) {
-  var studyPromise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid}),
-      projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid}),
-      samplesPromise = res.locals.client.studies().samples(req.params.studyId, {sid: req.session.sid}),
+router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, project, study, function (req, res) {
+  var samplesPromise = res.locals.client.studies().samples(req.params.studyId, {sid: req.session.sid}),
       samplePromise = res.locals.client.samples().info(req.params.sampleId, {sid: req.session.sid});
 
-  Promise.all([studyPromise, projectPromise, samplesPromise, samplePromise]).then(function(responses) {
-    var study = responses[0].result[0],
-        project = responses[1].result[0],
-        samples = responses[2].result,
-        sample = responses[3].result[0];
+  Promise.all([samplesPromise, samplePromise]).then(function(responses) {
+    var samples = responses[1].result,
+        sample = responses[2].result[0];
 
     render(res, 'sample', {
-      'project' : project,
-      'study' : study,
       'sample': sample,
       'samples': samples
     });
   });
 });
 
-router.get('/project/:projectId/study/:studyId/file/:fileId', auth, function (req, res) {
-  var studyPromise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid}),
-      projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid}),
-      filePromise = res.locals.client.files().info(req.params.fileId, {sid: req.session.sid});
-
-  Promise.all([studyPromise, projectPromise, filePromise]).then(function(responses) {
-    var study = responses[0].result[0],
-        project = responses[1].result[0],
-        file = responses[2].result[0];
-
-    render(res, 'file', {
-      'project' : project,
-      'study' : study,
-      'file': file
-    });
+router.get('/project/:projectId/study/:studyId/file/:fileId', auth, project, study, function (req, res) {
+  var promise = res.locals.client.files().info(req.params.fileId, {sid: req.session.sid});
+  promise.then(function(response) {
+    render(res, 'file', { 'file': response.result[0] });
   });
 });
 
@@ -243,8 +219,8 @@ function render(res, template, params) {
   var params = params || {},
       objects = [];
 
-  if (res.locals.user) {
-    params.user = res.locals.user;
+  for (key in res.locals.params) {
+    params[key] = res.locals.params[key];
   }
 
   Object.keys(params).forEach(function(key) {
