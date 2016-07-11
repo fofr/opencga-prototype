@@ -41,7 +41,7 @@
           </td>
           <td>
             <a href="/project/{{ project.id }}/study/{{ study.id }}/files">
-              {{ studies[loop.index - 1].files }} {{ "file"|pluralize(studies[loop.index - 1].files) }}
+              {{ studies[loop.index - 1].files }} {{ "file"|pluralize(studies[loop.index - 1].files) }} ({{ studies[loop.index - 1].fileSize }})
             </a>
           </td>
           <td>

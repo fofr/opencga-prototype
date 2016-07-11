@@ -18,13 +18,13 @@
   </ol>
 
   <h1 class="add-bottom-margin">
-    {{ files|length }} {{'file'|pluralize(files|length)}}
+    {{ files|length }} {{'file'|pluralize(files|length)}} ({{ study.fileSize }})
   </h1>
 
   <table class="table table-bordered" data-module="filterable-table">
     <thead>
       <tr class="table-header">
-        <th>Name</th>
+        <th style="width: 65%">Name</th>
         <th class="text-right">Size</th>
         <th>Bioformat</th>
         <th>Samples</th>

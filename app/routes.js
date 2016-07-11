@@ -3,6 +3,28 @@ var router = express.Router();
 var OpenCGA = require('../lib/opencga_client.js');
 var sampleAnnotationSummary = require('./processing/sample_summary');
 
+// http://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable
+function humanFileSize(bytes) {
+  var thresh = 1000;
+
+  if (bytes < 10) {
+    return null;
+  }
+
+  if (Math.abs(bytes) < thresh) {
+      return bytes + ' B';
+  }
+  var units = ['KB','MB','GB','TB','PB','EB','ZB','YB'],
+      u = -1;
+
+  do {
+      bytes /= thresh;
+      ++u;
+  } while(Math.abs(bytes) >= thresh && u < units.length - 1);
+
+  return bytes.toFixed(u > 1 ? 1 : 0) + ' ' + units[u];
+}
+
 // Authentication and Authorization Middleware
 var auth = function(req, res, next) {
   res.locals.params = {};
@@ -37,7 +59,10 @@ var study = function(req, res, next) {
     param: 'study',
     clientType: 'studies',
     clientMethod: 'info',
-    id: req.params.studyId
+    id: req.params.studyId,
+    responseCallback: function(response) {
+      response.result[0].fileSize = humanFileSize(response.result[0].diskUsage);
+    }
   });
 };
 
@@ -55,28 +80,6 @@ var files = function(req, res, next) {
       });
     }
   });
-
-  // http://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable
-  function humanFileSize(bytes) {
-    var thresh = 1000;
-
-    if (bytes < 10) {
-      return null;
-    }
-
-    if (Math.abs(bytes) < thresh) {
-        return bytes + ' B';
-    }
-    var units = ['KB','MB','GB','TB','PB','EB','ZB','YB'],
-        u = -1;
-
-    do {
-        bytes /= thresh;
-        ++u;
-    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
-
-    return bytes.toFixed(u > 1 ? 1 : 0) + ' ' + units[u];
-  }
 };
 
 var jobs = function(req, res, next) {
@@ -172,6 +175,7 @@ router.get('/project/:projectId', auth, project, function (req, res) {
   Promise.all(studyPromises).then(function(responses) {
     render(res, 'project', {
       'studies': responses.map(function(response) {
+        response.result[0].fileSize = humanFileSize(response.result[0].diskUsage);
         return response.result[0];
       })
     });
