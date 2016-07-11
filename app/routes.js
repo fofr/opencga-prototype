@@ -262,7 +262,7 @@ router.get('/project/:projectId/study/:studyId/file/:fileId', auth, project, stu
 });
 
 function render(res, template, params) {
-  var params = Object.assign(res.locals.params, params),
+  var params = Object.assign(res.locals.params || {}, params),
       objects = [];
 
   Object.keys(params).forEach(function(key) {
