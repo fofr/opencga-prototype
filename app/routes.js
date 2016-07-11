@@ -27,7 +27,11 @@ router.get('/login', function (req, res) {
 
 router.post('/login', function (req, res) {
   if (!req.body.username || !req.body.password || !req.body.server) {
-    res.send('login failed');
+    render(res, 'login', {
+      error: "Please provide a username, password and server",
+      server: req.body.server,
+      username: req.body.username
+    });
   } else {
     // Strip trailing slash and protocol from user entry
     var server = req.body.server.replace(/\/$/, "").replace(/.*?:\/\//g, "");
@@ -43,7 +47,11 @@ router.post('/login', function (req, res) {
       res.redirect('/');
     }).catch(function(response) {
       console.log('Error caught', response, response.error);
-      res.send('login failed');
+      render(res, 'login', {
+        error: typeof response ==="string" ? response : response.error,
+        server: req.body.server,
+        username: req.body.username
+      });
     });
   }
 });
