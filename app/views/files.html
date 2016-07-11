@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block page_title %}{{ study.name }} files{% endblock %}
+
+{% block content %}
+  <ol class="breadcrumb">
+    <li>
+      <a href="/">Projects</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+    </li>
+    <li class="active">
+      Files
+    </li>
+  </ol>
+
+  <h1 class="add-bottom-margin">
+    {{ files|length }} {{'file'|pluralize(files|length)}}
+  </h1>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr class="table-header">
+        <th>Name</th>
+        <th>Bioformat</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for file in files %}
+        {% if file.path %}
+        <tr>
+          <td>
+            <a href="/project/{{ project.id }}/study/{{ study.id }}/file/{{ file.id }}" class="word-break">{{ file.path }}</a>
+          </td>
+          <td>
+            {{ file.bioformat }}
+          </td>
+          <td>
+            {{ file.description }}
+          </td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -128,6 +128,25 @@ router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
   });
 });
 
+router.get('/project/:projectId/study/:studyId/files', auth, function (req, res) {
+  var studyPromise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid}),
+      projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid}),
+      filesPromise = res.locals.client.studies().files(req.params.studyId, {sid: req.session.sid});
+
+  Promise.all([studyPromise, projectPromise, filesPromise]).then(function(responses) {
+    var study = responses[0].result[0],
+        project = responses[1].result[0],
+        files = responses[2].result;
+
+    render(res, 'files', {
+      'project' : project,
+      'study' : study,
+      'user' : res.locals.user,
+      'files': files
+    });
+  });
+});
+
 router.get('/project/:projectId/study/:studyId/samples', auth, function (req, res) {
   var studyPromise = res.locals.client.studies().info(req.params.studyId, {sid: req.session.sid}),
       projectPromise = res.locals.client.projects().info(req.params.projectId, {sid: req.session.sid}),
