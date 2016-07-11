@@ -78,7 +78,6 @@ router.get('/project/:projectId', auth, function (req, res) {
     Promise.all(studyPromises).then(function(responses) {
       render(res, 'project', {
         'project' : project,
-        'user' : res.locals.user,
         'studies': responses.map(function(response) {
           return response.result[0];
         })
@@ -119,7 +118,6 @@ router.get('/project/:projectId/study/:studyId', auth, function (req, res) {
     render(res, 'study', {
       'project' : project,
       'study' : study,
-      'user' : res.locals.user,
       'files': files,
       'samples': samples,
       'jobs': jobs,
@@ -141,7 +139,6 @@ router.get('/project/:projectId/study/:studyId/files', auth, function (req, res)
     render(res, 'files', {
       'project' : project,
       'study' : study,
-      'user' : res.locals.user,
       'files': files
     });
   });
@@ -186,7 +183,6 @@ router.get('/project/:projectId/study/:studyId/samples', auth, function (req, re
     render(res, 'samples', {
       'project' : project,
       'study' : study,
-      'user' : res.locals.user,
       'samples': samples,
       'filters': filters,
       'activeFilters': activeFilters
@@ -219,7 +215,6 @@ router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, function
     render(res, 'sample', {
       'project' : project,
       'study' : study,
-      'user' : res.locals.user,
       'sample': sample,
       'samples': samples
     });
@@ -239,7 +234,6 @@ router.get('/project/:projectId/study/:studyId/file/:fileId', auth, function (re
     render(res, 'file', {
       'project' : project,
       'study' : study,
-      'user' : res.locals.user,
       'file': file
     });
   });
@@ -248,6 +242,10 @@ router.get('/project/:projectId/study/:studyId/file/:fileId', auth, function (re
 function render(res, template, params) {
   var params = params || {},
       objects = [];
+
+  if (res.locals.user) {
+    params.user = res.locals.user;
+  }
 
   Object.keys(params).forEach(function(key) {
     var val = params[key],
