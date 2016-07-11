@@ -47,8 +47,36 @@ var files = function(req, res, next) {
     clientType: 'studies',
     clientMethod: 'files',
     id: req.params.studyId,
-    returnArray: true
+    returnArray: true,
+    responseCallback: function(response) {
+      response.result.forEach(function(result) {
+        result.pathParts = result.path.split('/');
+        result.fileSize = humanFileSize(result.diskUsage);
+      });
+    }
   });
+
+  // http://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable
+  function humanFileSize(bytes) {
+    var thresh = 1000;
+
+    if (bytes < 10) {
+      return null;
+    }
+
+    if (Math.abs(bytes) < thresh) {
+        return bytes + ' B';
+    }
+    var units = ['KB','MB','GB','TB','PB','EB','ZB','YB'],
+        u = -1;
+
+    do {
+        bytes /= thresh;
+        ++u;
+    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
+
+    return bytes.toFixed(u > 1 ? 1 : 0) + ' ' + units[u];
+  }
 };
 
 var jobs = function(req, res, next) {
@@ -76,6 +104,10 @@ var getResource = function(req, res, next, options) {
   res.locals.params = res.locals.params || {};
   promise = res.locals.client[options.clientType]()[options.clientMethod](options.id, {sid: req.session.sid});
   promise.then(function(response) {
+    if (typeof options.responseCallback === "function") {
+      options.responseCallback(response);
+    }
+
     if (options.returnArray) {
       res.locals.params[options.param] = response.result;
     } else {

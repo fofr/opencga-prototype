@@ -21,12 +21,26 @@
     {{ files|length }} {{'file'|pluralize(files|length)}}
   </h1>
 
-  <table class="table table-bordered">
+  <table class="table table-bordered" data-module="filterable-table">
     <thead>
       <tr class="table-header">
         <th>Name</th>
+        <th class="text-right">Size</th>
         <th>Bioformat</th>
-        <th>Description</th>
+        <th>Samples</th>
+      </tr>
+      <tr class="if-no-js-hide table-header-secondary">
+        <td colspan="100">
+          <form>
+            <label for="gene-filter" class="rm">Filter files</label>
+            <div class="input-group">
+              <input id="gene-filter" type="text" class="form-control normal js-filter-table-input" placeholder="Filter files">
+              <span class="input-group-addon js-filter-table-count" data-singular="file" data-plural="files">
+                  {{ files|length }} {{"file"|pluralize(files|length)}}
+              </span>
+            </div>
+          </form>
+        </td>
       </tr>
     </thead>
     <tbody>
@@ -34,13 +48,23 @@
         {% if file.path %}
         <tr>
           <td>
-            <a href="/project/{{ project.id }}/study/{{ study.id }}/file/{{ file.id }}" class="word-break">{{ file.path }}</a>
+            {% for part in file.pathParts %}
+              {% if loop.last %}
+                <a href="/project/{{ project.id }}/study/{{ study.id }}/file/{{ file.id }}" class="word-break">{{ part }}</a>
+              {% else %}
+                <span class="text-muted">{{ part }}</span>
+                <span class="text-muted divider">/</span>
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td class="text-right">
+            {{ file.fileSize }}
           </td>
           <td>
             {{ file.bioformat }}
           </td>
           <td>
-            {{ file.description }}
+            {{ file.sampleIds|length }} {{'sample'|pluralize(file.sampleIds|length)}}
           </td>
         </tr>
         {% endif %}
