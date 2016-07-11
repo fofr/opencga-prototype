@@ -29,7 +29,9 @@ router.post('/login', function (req, res) {
   if (!req.body.username || !req.body.password || !req.body.server) {
     res.send('login failed');
   } else {
-    var config = new OpenCGA.OpenCGAClientConfig(req.body.server, 'v1', 'opencga_sId', 'opencga_userId');
+    // Strip trailing slash and protocol from user entry
+    var server = req.body.server.replace(/\/$/, "").replace(/.*?:\/\//g, "");
+    var config = new OpenCGA.OpenCGAClientConfig(server, 'v1', 'opencga_sId', 'opencga_userId');
     var client = new OpenCGA.OpenCGAClient(config);
 
     promise = client.users().login(req.body.username, {password: req.body.password});
@@ -37,7 +39,7 @@ router.post('/login', function (req, res) {
       var item = response.response[0].result[0];
       req.session.sid = item.sessionId;
       req.session.userId = item.userId;
-      req.session.server = req.body.server;
+      req.session.server = server;
       res.redirect('/');
     }).catch(function(response) {
       console.log('Error caught', response, response.error);
