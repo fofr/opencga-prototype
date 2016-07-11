@@ -3,7 +3,7 @@
   "description": "Express prototype",
   "private": true,
   "engines": {
-    "node": ">=4.0"
+    "node": ">=6.0"
   },
   "scripts": {
     "start": "node start.js"
