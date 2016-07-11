@@ -19,6 +19,7 @@ app.use(session({
   store: new SQLiteStore,
   secret: '73874hdfhjh2387876',
   saveUninitialized: false,
+  resave: false,
   cookie: {}
 }));
 
