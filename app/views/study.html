@@ -4,31 +4,60 @@
 {% block content %}
   <ol class="breadcrumb">
     <li>
-      <a href="/">Projects</a>
-    </li>
-    <li>
-      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+      <a href="/">Case list</a>
     </li>
     <li class="active">
-      {{ study.name }}
+      Participant 50100035
     </li>
   </ol>
 
   <h1>
-    <span class="text-muted format">Study</span><br />
-    {{ study.name }}
+    <span class="text-muted format">Participant</span><br />
+    50100035
   </h1>
-  <p class="lead">{{ study.description }}</p>
 
-  <ul class="list-group">
-    <li class="list-group-item">
-      <a href="/project/{{ project.id }}/study/{{ study.id }}/samples">{{ summary.samples }} {{'sample'|pluralize(summary.samples)}}</a>
-    </li>
-    <li class="list-group-item">
-      <a href="/project/{{ project.id }}/study/{{ study.id }}/jobs">{{ summary.jobs }} {{'job'|pluralize(summary.jobs)}}</a>
-    </li>
-    <li class="list-group-item">
-      <a href="/project/{{ project.id }}/study/{{ study.id }}/files">{{ summary.files }} {{'file'|pluralize(summary.files)}}</a>
-    </li>
-  </ul>
+  <hr />
+
+  <dl class="dl-horizontal">
+    <dt>Report ID</dt>
+    <dd>OPA-132-1</dd>
+    <dt>Family ID</dt>
+    <dd>50100035</dd>
+  </dl>
+
+
+
+  <div class="">
+    <div class="row">
+      <div class="col-md-4">
+        <h2>
+          <a href="#">Pedigree</a>
+        </h2>
+        <p class="lead">Something about what this link does</p>
+      </div>
+      <div class="col-md-4">
+        <h2>Downloads</h2>
+        <ul class="list-unstyled">
+          {% for i in range(0, 10) %}
+          <li class="add-bottom-margin">
+            <h3><a href="#">File</a></h3>
+            <span class="text-muted">file.thing.txt (10kb)
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h2>Actions</h2>
+        <ul class="list-unstyled">
+          {% for i in range(0, 10) %}
+          <li>
+            <a href="#">Some action</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
 {% endblock %}

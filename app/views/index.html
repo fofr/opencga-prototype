@@ -4,34 +4,33 @@
 {% block content %}
   <ol class="breadcrumb">
     <li class="active">
-      Projects
+      Case list
     </li>
   </ol>
 
-  <h1>Projects</h1>
+  <h1>Case list</h1>
+  <a href="#">Archived cases</a>
 
   <table class="table table-bordered add-top-margin">
     <thead>
       <tr class="table-header">
-        <th>Project</th>
-        <th>Studies</th>
+        <th>Family ID</th>
+        <th>Participant ID</th>
+        <th>Date</th>
+        <th>Report ID</th>
+        <th>Files</th>
+        <th>GMC</th>
       </tr>
     </thead>
     <tbody>
-      {% for project in user.projects %}
+      {% for i in range(0, 50) %}
         <tr>
-          <td>
-            <a href="/project/{{ project.id }}/">{{ project.name }}</a>
-          </td>
-          <td>
-            <ul class="list-unstyled">
-              {% for study in project.studies %}
-                <li>
-                  <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          </td>
+          <td>5010003{{ i }}</td>
+          <td><a href="#">5010003{{ i }}</a></td>
+          <td>11 July 2016</td>
+          <td>OPA-132-1</td>
+          <td>0 files</td>
+          <td>GOSH</td>
         </tr>
       {% endfor %}
     </tbody>
