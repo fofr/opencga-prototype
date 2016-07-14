@@ -14,7 +14,8 @@ var sampleAnnotationSummary = function(samples, queryParams) {
           value = annotation.value,
           filterQuery = {};
 
-      if (name !== 'id' && name !== 'name') {
+      // FIXME: Properly handle annotation values that are objects themselves.
+      if (name !== 'id' && name !== 'name' && typeof value !== "object") {
         filterQuery['annotation.' + name] = value;
         summary[name] = summary[name] || {};
         summary[name][value] = summary[name][value] || {
