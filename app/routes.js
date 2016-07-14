@@ -199,12 +199,19 @@ router.get('/project/:projectId/study/:studyId/jobs', auth, project, study, jobs
 });
 
 router.get('/project/:projectId/study/:studyId/samples', auth, project, study, function (req, res, next) {
-  var promise, search_params;
+  var study = res.locals.params.study,
+      variableSets = study.variableSets,
+      promise, search_params;
 
   // TODO: Make this more reliable
   search_params = Object.assign({
     studyId: req.params.studyId,
     sid: req.session.sid}, req.query);
+
+  if (variableSets && variableSets.length > 0) {
+    search_params['variableSetId'] = variableSets[0].id;
+  }
+
   promise = res.locals.client.samples().search(search_params);
 
   promise.then(function(response) {
@@ -225,7 +232,6 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
 
     samples.forEach(function(sample) {
       var sets = sample.annotationSets;
-
       sample.annotations = {};
 
       if (sets && sets.length > 0) {
