@@ -224,9 +224,14 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
     }
 
     samples.forEach(function(sample) {
+      var sets = sample.annotationSets;
+
       sample.annotations = {};
-      for (let annotation of sample.annotationSets[0].annotations) {
-        sample.annotations[annotation.name] = annotation.value;
+
+      if (sets && sets.length > 0) {
+        for (let annotation of sets[0].annotations) {
+          sample.annotations[annotation.name] = annotation.value;
+        }
       }
     });
 

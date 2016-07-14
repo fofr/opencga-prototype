@@ -2,7 +2,9 @@ var sampleAnnotationSummary = function(samples, queryParams) {
   var summary = {},
       sampleAnnotations;
 
-  sampleAnnotations = samples.map(function(sample) {
+  sampleAnnotations = samples.filter(function(sample) {
+    return sample.annotationSets && sample.annotationSets.length > 0;
+  }).map(function(sample) {
     return sample.annotationSets[0].annotations;
   });
 
