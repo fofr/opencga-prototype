@@ -39,7 +39,7 @@ var auth = function(req, res, next) {
     userPromise.then(function(response) {
       res.locals.params.user = response.result[0];
       return next();
-    });
+    }).catch(next);
   } else {
     res.redirect('/login');
   }
@@ -116,15 +116,16 @@ var getResource = function(req, res, next, options) {
     } else {
       res.locals.params[options.param] = response.result[0];
     }
+
     return next();
-  });
+  }).catch(next);
 };
 
-router.get('/login', function (req, res) {
+router.get('/login', function (req, res, next) {
   render(res, 'login');
 });
 
-router.post('/login', function (req, res) {
+router.post('/login', function (req, res, next) {
   if (!req.body.username || !req.body.password || !req.body.server) {
     render(res, 'login', {
       error: "Please provide a username, password and server",
@@ -155,16 +156,16 @@ router.post('/login', function (req, res) {
   }
 });
 
-router.get('/logout', function (req, res) {
+router.get('/logout', function (req, res, next) {
   req.session.destroy();
   res.redirect('/login');
 });
 
-router.get('/', auth, function (req, res) {
+router.get('/', auth, function (req, res, next) {
   render(res, 'index');
 });
 
-router.get('/project/:projectId', auth, project, function (req, res) {
+router.get('/project/:projectId', auth, project, function (req, res, next) {
   var project = res.locals.params.project,
       studyPromises = [];
 
@@ -179,25 +180,25 @@ router.get('/project/:projectId', auth, project, function (req, res) {
         return response.result[0];
       })
     });
-  });
+  }).catch(next);
 });
 
-router.get('/project/:projectId/study/:studyId', auth, project, study, function (req, res) {
+router.get('/project/:projectId/study/:studyId', auth, project, study, function (req, res, next) {
   var promise = res.locals.client.studies().summary(req.params.studyId, {sid: req.session.sid});
   promise.then(function(response) {
     render(res, 'study', { 'summary': response.result[0] });
-  });
+  }).catch(next);;
 });
 
-router.get('/project/:projectId/study/:studyId/files', auth, project, study, files, function (req, res) {
+router.get('/project/:projectId/study/:studyId/files', auth, project, study, files, function (req, res, next) {
   render(res, 'files');
 });
 
-router.get('/project/:projectId/study/:studyId/jobs', auth, project, study, jobs, function (req, res) {
+router.get('/project/:projectId/study/:studyId/jobs', auth, project, study, jobs, function (req, res, next) {
   render(res, 'jobs');
 });
 
-router.get('/project/:projectId/study/:studyId/samples', auth, project, study, function (req, res) {
+router.get('/project/:projectId/study/:studyId/samples', auth, project, study, function (req, res, next) {
   var promise, search_params;
 
   // TODO: Make this more reliable
@@ -234,7 +235,7 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
       'filters': filters,
       'activeFilters': activeFilters
     });
-  });
+  }).catch(next);
 
   function serialize(obj) {
     var str = [];
@@ -247,18 +248,18 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
   }
 });
 
-router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, project, study, samples, function (req, res) {
+router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, project, study, samples, function (req, res, next) {
   var promise = res.locals.client.samples().info(req.params.sampleId, {sid: req.session.sid});
   promise.then(function(response) {
     render(res, 'sample', { 'sample': response.result[0] });
-  });
+  }).catch(next);;
 });
 
-router.get('/project/:projectId/study/:studyId/file/:fileId', auth, project, study, function (req, res) {
+router.get('/project/:projectId/study/:studyId/file/:fileId', auth, project, study, function (req, res, next) {
   var promise = res.locals.client.files().info(req.params.fileId, {sid: req.session.sid});
   promise.then(function(response) {
     render(res, 'file', { 'file': response.result[0] });
-  });
+  }).catch(next);;
 });
 
 function render(res, template, params) {

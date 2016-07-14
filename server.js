@@ -76,6 +76,15 @@ app.get('/robots.txt', function (req, res) {
 
 app.use("/", routes);
 
+// Show errors
+app.use(function(err, req, res, next) {
+  console.error(err);
+  if (err.stack) {
+    console.error(err.stack);
+  }
+  res.status(500).send(err.stack ? err.stack : err);
+});
+
 // Strip .html and .htm if provided
 app.get(/\.html?$/i, function (req, res){
   var path = req.path;
