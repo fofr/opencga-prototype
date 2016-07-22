@@ -228,3 +228,33 @@ th.sorted-asc .fa-arrow-down {
   margin-bottom: 5px;
   display: inline-block;
 }
+
+/* Filter panel
+   ========================================================================== */
+
+.filter-panel .glyphicon {
+  font-size: 80%;
+  margin-right: 8px;
+}
+
+.filter-panel .glyphicon-plus {
+  color: #999;
+}
+
+.filter-panel .glyphicon-ok {
+  color: green;
+}
+
+.filter-value {
+  color: #999;
+  margin-left: 20px;
+}
+
+.filter-active {
+  background: #f3f3f3;
+}
+
+.filter-action {
+  max-width: 200px;
+  margin: 0 auto;
+}

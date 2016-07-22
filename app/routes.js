@@ -260,6 +260,68 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
   }
 });
 
+router.get('/project/:projectId/study/:studyId/samples/filters', auth, project, study, function (req, res, next) {
+  var study = res.locals.params.study,
+      variableSets = study.variableSets,
+      variables = {categorical: [], text: [], numeric: []},
+      promise, search_params;
+
+  if (variableSets && variableSets.length > 0) {
+    for (let variable of variableSets[0].variables) {
+      var type = variable.type.toLowerCase();
+      variables[type].push(variable.name);
+    }
+  }
+
+  console.log(variables);
+
+  // TODO: Make this more reliable
+  search_params = Object.assign({
+    studyId: req.params.studyId,
+    sid: req.session.sid}, req.query);
+
+  if (variableSets && variableSets.length > 0) {
+    search_params['variableSetId'] = variableSets[0].id;
+  }
+
+  promise = res.locals.client.samples().search(search_params);
+
+  promise.then(function(response) {
+    var samples = response.result,
+        filters = sampleAnnotationSummary(samples, req.query),
+        activeFilters = {};
+
+    for (var queryParam in req.query) {
+      var annotation = queryParam.split('.')[1],
+          filterQueryObject = Object.assign({}, req.query);
+
+      delete filterQueryObject[queryParam];
+      activeFilters[annotation] = {
+        value: req.query[queryParam],
+        filterQuery: '?' + serialize(filterQueryObject)
+      }
+    }
+
+    samples.forEach(function(sample) {
+      var sets = sample.annotationSets;
+      sample.annotations = {};
+
+      if (sets && sets.length > 0) {
+        for (let annotation of sets[0].annotations) {
+          sample.annotations[annotation.name] = annotation.value;
+        }
+      }
+    });
+
+    render(res, 'filters', {
+      'samples': samples,
+      'filters': filters,
+      'variables': variables,
+      'activeFilters': activeFilters
+    });
+  }).catch(next);
+});
+
 router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, project, study, samples, function (req, res, next) {
   var promise = res.locals.client.samples().info(req.params.sampleId, {sid: req.session.sid});
   promise.then(function(response) {

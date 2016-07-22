@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block page_title %}Filter samples{% endblock %}
+
+{% block content %}
+  <ol class="breadcrumb">
+    <li>
+      <a href="/">Projects</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}/samples">Samples</a>
+    </li>
+    <li class="active">
+      Filter samples
+    </li>
+  </ol>
+
+  <h1 class="add-bottom-margin">
+    20 variables
+  </h1>
+
+  <div class="panel panel-default filter-panel">
+    <div class="panel-heading">
+      <div class="panel-title">Filter</div>
+    </div>
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-4">
+          <h4 class="remove-top-margin">Categorical</h4>
+          <ul class="list-group">
+            {% for v in variables.categorical %}
+              <li class="list-group-item">
+                <a href="#"><span class="glyphicon glyphicon-plus"></span>{{ v }}</a>
+              </li>
+            {% endfor %}
+            <!-- <li class="list-group-item filter-active"><a href="#"><span class="glyphicon glyphicon-ok"></span>affy_genotypes</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>omni genotypes</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>phase 3 genotypes</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>sex</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>related genotypes</a></li>
+            <li class="list-group-item filter-active"><a href="#"><span class="glyphicon glyphicon-ok"></span>Population</a><br /><span class="filter-value">GBR, FIN</span></li>-->
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h4 class="remove-top-margin">Text</h4>
+          <ul class="list-group">
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>fatherName</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>Second Order</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>Third Order</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>motherName</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>Other Comments</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>Relationship</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>name</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>Children</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>family</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>Siblings</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h4 class="remove-top-margin">Numeric</h4>
+          <ul class="list-group">
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>motherId</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>fatherId</a></li>
+            <li class="list-group-item"><a href="#"><span class="glyphicon glyphicon-plus"></span>id</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="panel-footer text-center">
+      <p class="text-muted add-label-margin">2 filters selected</p>
+      <input type="submit" class="btn btn-block btn-primary filter-action" value="Filter">
+    </div>
+  </div>
+
+
+{% endblock %}
