@@ -263,17 +263,16 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
 router.get('/project/:projectId/study/:studyId/samples/filters', auth, project, study, function (req, res, next) {
   var study = res.locals.params.study,
       variableSets = study.variableSets,
-      variables = {categorical: [], text: [], numeric: []},
+      variables = {categorical: [], text: [], numeric: [], count: 0},
       promise, search_params;
 
   if (variableSets && variableSets.length > 0) {
     for (let variable of variableSets[0].variables) {
       var type = variable.type.toLowerCase();
-      variables[type].push(variable.name);
+      variables[type].push(variable);
+      variables.count++;
     }
   }
-
-  console.log(variables);
 
   // TODO: Make this more reliable
   search_params = Object.assign({

@@ -14,6 +14,16 @@ window.Modules = {};
         };
     };
 
+    Modules['label-toggle'] = function() {
+        this.start = function(element) {
+            element.on('click', '.js-label-toggle', toggle);
+            function toggle(event) {
+                var $label = $(event.target);
+                $label.toggleClass('active-label');
+            }
+        };
+    };
+
     Modules['filterable-list'] = function() {
         var that = this;
         that.start = function(element) {
