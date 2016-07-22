@@ -244,7 +244,8 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
     render(res, 'samples', {
       'samples': samples,
       'filters': filters,
-      'activeFilters': activeFilters
+      'activeFilters': activeFilters,
+      'full_width': true
     });
   }).catch(next);
 

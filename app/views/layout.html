@@ -9,7 +9,7 @@
   </head>
   <body class="{% block body_classes %}{% endblock %}">
     <div class="navbar navbar-inverse">
-      <div class="container">
+      <div class="{% if full_width %}container-fluid{% else %}container{% endif %}">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
             <span class="sr-only">Toggle navigation</span>
@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-    <div class="container">
+    <div class="{% if full_width %}container-fluid{% else %}container{% endif %}">
       {% block content %}{% endblock %}
     </div>
     <script src="{{ asset_path }}javascripts/jquery-1.11.3.js"></script>
