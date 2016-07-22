@@ -24,6 +24,38 @@ window.Modules = {};
         };
     };
 
+    Modules['filter'] = function() {
+        this.start = function(element) {
+            element.on('click', '.js-filter', showActiveFilters);
+            element.on('click', '.js-remove-filter', removeFilter);
+
+            function removeFilter(event) {
+              event.preventDefault();
+              element.find('input:checked').prop('checked', false);
+              element.find('input[type="text"]').val('');
+              showActiveFilters();
+            }
+
+            function showActiveFilters() {
+                var values = $.map(element.find('input:checked, input[type="text"]'), function(e) { return $(e).val() });
+
+                if (values.length > 0 && values.join('') != '') {
+                  element.find('.js-selected-filters').text(values.join(', '));
+                  element.addClass('filter-active');
+                  element.find('.glyphicon-plus').addClass('glyphicon-ok').removeClass('glyphicon-plus');
+                  element.find('.js-options').addClass('hide');
+                  element.find('.js-remove-filter').removeClass('hide');
+                } else {
+                  element.find('.js-selected-filters').text('');
+                  element.removeClass('filter-active');
+                  element.find('.glyphicon-ok').removeClass('glyphicon-ok').addClass('glyphicon-plus');
+                  element.find('.js-options').removeClass('hide');
+                  element.find('.js-remove-filter').addClass('hide');
+                }
+            }
+        };
+    };
+
     Modules['filterable-list'] = function() {
         var that = this;
         that.start = function(element) {
