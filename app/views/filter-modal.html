@@ -5,6 +5,9 @@
   {% endif %}
   <a href="#remove" class="pull-right inherit js-remove-filter hide"><span class="glyphicon glyphicon-remove"></span></a>
   <div class="filter-value js-selected-filters"></div>
+  {% if v.type == 'CATEGORICAL' %}
+    <input type="hidden" name="annotation.{{ v.name }}" class="js-categorical-value" value="" />
+  {% endif %}
 
   <div class="modal" tabindex="-1" role="dialog" id="{{ v.name|slug }}">
     <div class="modal-dialog">
@@ -28,7 +31,7 @@
               </div>
             {% else %}
               <div class="form-group">
-                <input type="text" name="{{ v.name|slug }}" class="form-control" />
+                <input type="text" name="annotation.{{ v.name }}" class="form-control" />
               </div>
             {% endif %}
         </div>

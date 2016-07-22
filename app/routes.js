@@ -201,16 +201,26 @@ router.get('/project/:projectId/study/:studyId/jobs', auth, project, study, jobs
 router.get('/project/:projectId/study/:studyId/samples', auth, project, study, function (req, res, next) {
   var study = res.locals.params.study,
       variableSets = study.variableSets,
-      promise, search_params;
+      promise, search_params, query_params;
+
+  query_params = Object.assign({}, req.query);
+  Object.keys(query_params).forEach(function(key) {
+    if (query_params[key] == '') {
+      delete query_params[key];
+    }
+  });
 
   // TODO: Make this more reliable
   search_params = Object.assign({
     studyId: req.params.studyId,
-    sid: req.session.sid}, req.query);
+    sid: req.session.sid}, query_params);
 
   if (variableSets && variableSets.length > 0) {
     search_params['variableSetId'] = variableSets[0].id;
   }
+
+  console.log(req.query);
+  console.log(search_params);
 
   promise = res.locals.client.samples().search(search_params);
 
@@ -219,7 +229,7 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
         filters = sampleAnnotationSummary(samples, req.query),
         activeFilters = {};
 
-    for (var queryParam in req.query) {
+    for (var queryParam in query_params) {
       var annotation = queryParam.split('.')[1],
           filterQueryObject = Object.assign({}, req.query);
 
@@ -275,9 +285,11 @@ router.get('/project/:projectId/study/:studyId/samples/filters', auth, project, 
   }
 
   // TODO: Make this more reliable
-  search_params = Object.assign({
-    studyId: req.params.studyId,
-    sid: req.session.sid}, req.query);
+  search_params = Object.assign(
+      {
+        studyId: req.params.studyId,
+        sid: req.session.sid
+      }, req.query);
 
   if (variableSets && variableSets.length > 0) {
     search_params['variableSetId'] = variableSets[0].id;

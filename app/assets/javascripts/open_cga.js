@@ -29,6 +29,8 @@ window.Modules = {};
             element.on('click', '.js-filter', showActiveFilters);
             element.on('click', '.js-remove-filter', removeFilter);
 
+            showActiveFilters();
+
             function removeFilter(event) {
               event.preventDefault();
               element.find('input:checked').prop('checked', false);
@@ -46,11 +48,14 @@ window.Modules = {};
                   element.find('.js-modal-link').prepend('<span class="glyphicon glyphicon-ok"></span>');
                   element.find('.js-options').addClass('hide');
                   element.find('.js-remove-filter').removeClass('hide');
+
+                  element.find('.js-categorical-value').val(values.join(','));
                 } else {
                   element.find('.js-selected-filters').text('');
                   element.removeClass('filter-active');
                   element.find('.js-options').removeClass('hide');
                   element.find('.js-remove-filter').addClass('hide');
+                  element.find('.js-categorical-value').val('');
                 }
             }
         };

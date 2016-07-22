@@ -24,7 +24,7 @@
     {{ variables.count }} variables
   </h1>
 
-  <div class="panel panel-default filter-panel">
+  <form class="panel panel-default filter-panel" action="/project/{{ project.id }}/study/{{ study.id }}/samples" method="get">
     <div class="panel-heading">
       <div class="panel-title">Filter</div>
     </div>
@@ -60,7 +60,7 @@
       <p class="text-muted add-label-margin">2 filters selected</p>
       <input type="submit" class="btn btn-block btn-primary filter-action" value="Filter">
     </div>
-  </div>
+  </form>
 
 
 {% endblock %}
