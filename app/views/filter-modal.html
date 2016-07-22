@@ -1,0 +1,42 @@
+<li class="list-group-item" data-module="filter">
+  <a href="#{{ v.name|slug }}" class="js-modal-link" data-toggle="modal" data-target="#{{ v.name|slug }}">{{ v.name }}</a>
+  {% if v.type == 'CATEGORICAL' %}
+    <span class="pull-right text-muted js-options">{{ v.allowedValues|length }} {{'option'|pluralize(v.allowedValues|length)}}</span>
+  {% endif %}
+  <a href="#remove" class="pull-right inherit js-remove-filter hide"><span class="glyphicon glyphicon-remove"></span></a>
+  <div class="filter-value js-selected-filters"></div>
+
+  <div class="modal" tabindex="-1" role="dialog" id="{{ v.name|slug }}">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Filter by ‘{{ v.name }}’</h4>
+        </div>
+        <div class="modal-body">
+            {% if v.type == 'CATEGORICAL' %}
+              <div class="row">
+                {% for allowed in v.allowedValues %}
+                    <div class="col-md-4">
+                      <div class="checkbox" style="margin: 0">
+                        <label class="category-filter-label js-label-toggle">
+                          <input type="checkbox" value="{{ allowed }}"> {{ allowed }}
+                        </label>
+                      </div>
+                    </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="form-group">
+                <input type="text" name="{{ v.name|slug }}" class="form-control" />
+              </div>
+            {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default add-right-margin" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary js-filter" data-dismiss="modal">Update filter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</li>

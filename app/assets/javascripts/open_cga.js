@@ -38,17 +38,17 @@ window.Modules = {};
 
             function showActiveFilters() {
                 var values = $.map(element.find('input:checked, input[type="text"]'), function(e) { return $(e).val() });
+                element.find('.glyphicon-ok').remove();
 
                 if (values.length > 0 && values.join('') != '') {
                   element.find('.js-selected-filters').text(values.join(', '));
                   element.addClass('filter-active');
-                  element.find('.glyphicon-plus').addClass('glyphicon-ok').removeClass('glyphicon-plus');
+                  element.find('.js-modal-link').prepend('<span class="glyphicon glyphicon-ok"></span>');
                   element.find('.js-options').addClass('hide');
                   element.find('.js-remove-filter').removeClass('hide');
                 } else {
                   element.find('.js-selected-filters').text('');
                   element.removeClass('filter-active');
-                  element.find('.glyphicon-ok').removeClass('glyphicon-ok').addClass('glyphicon-plus');
                   element.find('.js-options').removeClass('hide');
                   element.find('.js-remove-filter').addClass('hide');
                 }
