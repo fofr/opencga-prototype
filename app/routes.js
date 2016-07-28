@@ -201,12 +201,95 @@ router.get('/project/:projectId/study/:studyId/jobs', auth, project, study, jobs
 router.get('/project/:projectId/study/:studyId/samples', auth, project, study, function (req, res, next) {
   var study = res.locals.params.study,
       variableSets = study.variableSets,
-      promise, search_params;
+      promise, search_params, query_params;
+
+  query_params = Object.assign({}, req.query);
+  Object.keys(query_params).forEach(function(key) {
+    if (query_params[key] == '') {
+      delete query_params[key];
+    }
+  });
 
   // TODO: Make this more reliable
   search_params = Object.assign({
     studyId: req.params.studyId,
-    sid: req.session.sid}, req.query);
+    sid: req.session.sid}, query_params);
+
+  if (variableSets && variableSets.length > 0) {
+    search_params['variableSetId'] = variableSets[0].id;
+  }
+
+  console.log(req.query);
+  console.log(search_params);
+
+  promise = res.locals.client.samples().search(search_params);
+
+  promise.then(function(response) {
+    var samples = response.result,
+        filters = sampleAnnotationSummary(samples, req.query),
+        activeFilters = {};
+
+    for (var queryParam in query_params) {
+      var annotation = queryParam.split('.')[1],
+          filterQueryObject = Object.assign({}, req.query);
+
+      delete filterQueryObject[queryParam];
+      activeFilters[annotation] = {
+        value: req.query[queryParam],
+        filterQuery: '?' + serialize(filterQueryObject)
+      }
+    }
+
+    samples.forEach(function(sample) {
+      var sets = sample.annotationSets;
+      sample.annotations = {};
+
+      if (sets && sets.length > 0) {
+        for (let annotation of sets[0].annotations) {
+          sample.annotations[annotation.name] = annotation.value;
+        }
+      }
+    });
+
+    render(res, 'samples', {
+      'samples': samples,
+      'filters': filters,
+      'activeFilters': activeFilters,
+      'full_width': true
+    });
+  }).catch(next);
+
+  function serialize(obj) {
+    var str = [];
+    for (var p in obj) {
+      if (obj.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      }
+    }
+    return str.join("&");
+  }
+});
+
+router.get('/project/:projectId/study/:studyId/samples/filters', auth, project, study, function (req, res, next) {
+  var study = res.locals.params.study,
+      variableSets = study.variableSets,
+      variables = {categorical: [], text: [], numeric: [], count: 0},
+      promise, search_params;
+
+  if (variableSets && variableSets.length > 0) {
+    for (let variable of variableSets[0].variables) {
+      var type = variable.type.toLowerCase();
+      variables[type].push(variable);
+      variables.count++;
+    }
+  }
+
+  // TODO: Make this more reliable
+  search_params = Object.assign(
+      {
+        studyId: req.params.studyId,
+        sid: req.session.sid
+      }, req.query);
 
   if (variableSets && variableSets.length > 0) {
     search_params['variableSetId'] = variableSets[0].id;
@@ -241,22 +324,13 @@ router.get('/project/:projectId/study/:studyId/samples', auth, project, study, f
       }
     });
 
-    render(res, 'samples', {
+    render(res, 'filters', {
       'samples': samples,
       'filters': filters,
+      'variables': variables,
       'activeFilters': activeFilters
     });
   }).catch(next);
-
-  function serialize(obj) {
-    var str = [];
-    for (var p in obj) {
-      if (obj.hasOwnProperty(p)) {
-        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-      }
-    }
-    return str.join("&");
-  }
 });
 
 router.get('/project/:projectId/study/:studyId/sample/:sampleId', auth, project, study, samples, function (req, res, next) {

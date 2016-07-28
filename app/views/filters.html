@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block page_title %}Filter samples{% endblock %}
+
+{% block content %}
+  <ol class="breadcrumb">
+    <li>
+      <a href="/">Projects</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}">{{ study.name }}</a>
+    </li>
+    <li>
+      <a href="/project/{{ project.id }}/study/{{ study.id }}/samples">Samples</a>
+    </li>
+    <li class="active">
+      Filter samples
+    </li>
+  </ol>
+
+  <h1 class="add-bottom-margin">
+    {{ variables.count }} variables
+  </h1>
+
+  <form class="panel panel-default filter-panel" action="/project/{{ project.id }}/study/{{ study.id }}/samples" method="get">
+    <div class="panel-heading">
+      <div class="panel-title">Filter</div>
+    </div>
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-4">
+          <h4 class="remove-top-margin">Categorical</h4>
+          <ul class="list-group" data-module="label-toggle">
+            {% for v in variables.categorical %}
+              {% include "filter-modal.html" %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h4 class="remove-top-margin">Text</h4>
+          <ul class="list-group">
+            {% for v in variables.text %}
+              {% include "filter-modal.html" %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h4 class="remove-top-margin">Numeric</h4>
+          <ul class="list-group">
+            {% for v in variables.numeric %}
+              {% include "filter-modal.html" %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="panel-footer text-center">
+      <p class="text-muted add-label-margin">2 filters selected</p>
+      <input type="submit" class="btn btn-block btn-primary filter-action" value="Filter">
+    </div>
+  </form>
+
+
+{% endblock %}

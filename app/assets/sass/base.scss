@@ -228,3 +228,51 @@ th.sorted-asc .fa-arrow-down {
   margin-bottom: 5px;
   display: inline-block;
 }
+
+/* Filter panel
+   ========================================================================== */
+
+.filter-panel .glyphicon {
+  font-size: 80%;
+  margin-right: 8px;
+}
+
+.filter-panel .glyphicon-remove {
+  margin-right: 0;
+}
+
+.filter-panel .glyphicon-plus {
+  color: #999;
+}
+
+.filter-panel .glyphicon-ok {
+  color: green;
+}
+
+.filter-value {
+  color: #999;
+  margin-left: 20px;
+}
+
+.filter-active {
+  background: #f3f3f3;
+}
+
+.filter-action {
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.category-filter-label {
+  display: block;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
+  margin: 5px 0;
+  padding: 3px 5px;
+  padding-left: 25px !important;
+  border-radius: 3px;
+}
+
+.category-filter-label.active-label {
+  background: #ddd;
+}

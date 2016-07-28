@@ -14,6 +14,53 @@ window.Modules = {};
         };
     };
 
+    Modules['label-toggle'] = function() {
+        this.start = function(element) {
+            element.on('click', '.js-label-toggle', toggle);
+            function toggle(event) {
+                var $label = $(event.target);
+                $label.toggleClass('active-label');
+            }
+        };
+    };
+
+    Modules['filter'] = function() {
+        this.start = function(element) {
+            element.on('click', '.js-filter', showActiveFilters);
+            element.on('click', '.js-remove-filter', removeFilter);
+
+            showActiveFilters();
+
+            function removeFilter(event) {
+              event.preventDefault();
+              element.find('input:checked').prop('checked', false);
+              element.find('input[type="text"]').val('');
+              showActiveFilters();
+            }
+
+            function showActiveFilters() {
+                var values = $.map(element.find('input:checked, input[type="text"]'), function(e) { return $(e).val() });
+                element.find('.glyphicon-ok').remove();
+
+                if (values.length > 0 && values.join('') != '') {
+                  element.find('.js-selected-filters').text(values.join(', '));
+                  element.addClass('filter-active');
+                  element.find('.js-modal-link').prepend('<span class="glyphicon glyphicon-ok"></span>');
+                  element.find('.js-options').addClass('hide');
+                  element.find('.js-remove-filter').removeClass('hide');
+
+                  element.find('.js-categorical-value').val(values.join(','));
+                } else {
+                  element.find('.js-selected-filters').text('');
+                  element.removeClass('filter-active');
+                  element.find('.js-options').removeClass('hide');
+                  element.find('.js-remove-filter').addClass('hide');
+                  element.find('.js-categorical-value').val('');
+                }
+            }
+        };
+    };
+
     Modules['filterable-list'] = function() {
         var that = this;
         that.start = function(element) {
